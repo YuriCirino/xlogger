@@ -1,5 +1,7 @@
 # xLogger — guia passo a passo
 
+[English](../README.md) · **Português**
+
 Este guia leva você de um projeto vazio até um firmware com logs de debug que somem
 da versão final sem precisar comentar nenhuma linha.
 
@@ -12,7 +14,8 @@ da versão final sem precisar comentar nenhuma linha.
 - [7. Recursos extras](#7-recursos-extras)
 - [8. Migrando da classe `Logger` antiga](#8-migrando-da-classe-logger-antiga)
 - [9. Problemas comuns](#9-problemas-comuns)
-- [10. Para o mantenedor: publicando uma nova versão](#10-para-o-mantenedor-publicando-uma-nova-versão)
+- [10. Sugestões, dúvidas e bugs](#10-sugestões-dúvidas-e-bugs)
+- [11. Para o mantenedor: publicando uma nova versão](#11-para-o-mantenedor-publicando-uma-nova-versão)
 
 ---
 
@@ -237,7 +240,23 @@ Use `build_flags` no `platformio.ini` para valer no projeto inteiro.
 **Mudei `build_flags` e o comportamento não mudou**
 Faça um *Clean* (🗑 na barra inferior, ou `pio run -t clean`) e compile de novo.
 
-## 10. Para o mantenedor: publicando uma nova versão
+## 10. Sugestões, dúvidas e bugs
+
+Sua opinião ajuda a melhorar a biblioteca. Pode escrever em português ou em inglês.
+
+- 🐛 **Encontrou um bug?** [Abra um relato de bug](https://github.com/YuriCirino/xlogger/issues/new?template=bug_report.yml).
+  Informe a placa, a versão do xLogger, um trecho mínimo de código que reproduza o problema
+  e a saída do monitor serial.
+- 💡 **Tem uma ideia ou sugestão?** [Sugira um recurso](https://github.com/YuriCirino/xlogger/issues/new?template=feature_request.yml).
+- 🔀 **Quer contribuir com código?** Veja o [CONTRIBUTING.md](../CONTRIBUTING.md) e abra um pull request.
+
+Antes de abrir, procure nas [issues existentes](https://github.com/YuriCirino/xlogger/issues)
+para ver se alguém já relatou a mesma coisa. Se sim, deixe um 👍 ou um comentário com
+informações novas. Todas as interações seguem o [Código de Conduta](../CODE_OF_CONDUCT.md).
+
+Você precisa de uma conta gratuita no GitHub para abrir issues.
+
+## 11. Para o mantenedor: publicando uma nova versão
 
 1. Atualize a versão em **três** lugares: `library.json`, `library.properties` e
    `XLOGGER_VERSION` em `src/xLogger.h`.

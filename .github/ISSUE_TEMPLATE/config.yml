@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentation (English)
+    url: https://github.com/YuriCirino/xlogger#readme
+    about: Usage, API and examples.
+  - name: 🇧🇷 Guia em português
+    url: https://github.com/YuriCirino/xlogger/blob/main/docs/GUIA-pt-BR.md
+    about: Passo a passo completo em português.

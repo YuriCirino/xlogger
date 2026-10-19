@@ -6,7 +6,11 @@
 Lightweight leveled logger for Arduino and PlatformIO. Turn debug output on and off
 without commenting lines, and strip it from release firmware entirely.
 
-🇧🇷 **[Guia passo a passo em português](docs/GUIA-pt-BR.md)**
+**English** · [Português](docs/GUIA-pt-BR.md)
+
+> [!NOTE]
+> 🇧🇷 **Fala português?** Existe uma página separada com o guia completo, passo a passo, em português:
+> **[clique aqui para abrir o guia em português](docs/GUIA-pt-BR.md)**.
 
 ```cpp
 #include <xLogger.h>
@@ -120,6 +124,17 @@ and only affects that file.
 - `uint64_t` / `int64_t` cannot be printed on AVR because the core's `Print` has no overload for them.
 - Each `XLogger` costs a few bytes of RAM (pointer, level, flags, tag pointer).
 - Messages are not thread-safe on multi-core targets: lines from different tasks may interleave.
+
+## Feedback, bugs and contributing
+
+Suggestions and bug reports are very welcome, in English or Portuguese.
+
+- 🐛 **Found a bug?** [Open a bug report](https://github.com/YuriCirino/xlogger/issues/new?template=bug_report.yml)
+- 💡 **Have an idea?** [Suggest a feature](https://github.com/YuriCirino/xlogger/issues/new?template=feature_request.yml)
+- 🔀 **Want to contribute code?** Read [CONTRIBUTING.md](CONTRIBUTING.md) and open a pull request.
+
+Please search the [existing issues](https://github.com/YuriCirino/xlogger/issues) first,
+and follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## License
 

@@ -1,5 +1,16 @@
 # Changelog
 
+All notable changes to this project are documented here.
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
+uses [Semantic Versioning](https://semver.org/).
+
+## [Unreleased]
+
+### Added
+- Issue forms (bug report, feature request, question), pull request template.
+- `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` and `SECURITY.md`.
+- Clearer link to the Portuguese guide; feedback section in README and guide.
+
 ## [1.0.0] - 2026-10-19
 
 First public release.

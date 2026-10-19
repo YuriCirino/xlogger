@@ -1,0 +1,24 @@
+name: ❓ Question
+description: Ask how to use xLogger / Tire uma dúvida de uso
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please check the [README](https://github.com/YuriCirino/xlogger#readme) and the
+        [guia em português](https://github.com/YuriCirino/xlogger/blob/main/docs/GUIA-pt-BR.md) first.
+        English or Portuguese are both fine.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      description: What are you trying to do, and what have you tried? Include code if relevant.
+    validations:
+      required: true
+
+  - type: input
+    id: board
+    attributes:
+      label: Board and environment
+      placeholder: e.g. ESP32 DevKit + PlatformIO
