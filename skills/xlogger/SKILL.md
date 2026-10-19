@@ -1,21 +1,21 @@
 ---
 name: xlogger
-description: Writes and reviews Arduino/PlatformIO firmware that logs through the xLogger library (XLogger class, XLOG_* macros, XLOGGER_MAX_LEVEL). Use when the project includes xLogger.h or lists xlogger in lib_deps, when the user asks to add debug logging with xLogger, or when migrating Serial.print debugging to xLogger.
+description: Writes and reviews Arduino/PlatformIO firmware that logs through the xLogger library (XLogger class, logger.info/debug methods, XLOG_* macros, XLOGGER_MAX_LEVEL). Use when the project includes xLogger.h or lists xlogger in lib_deps, when the user asks to add debug logging with xLogger, or when migrating Serial.print debugging to xLogger.
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
   repository: https://github.com/YuriCirino/xlogger
 ---
 
 # xLogger — reference for AI assistants
 
 xLogger is a header-only, leveled logger for Arduino and PlatformIO (C++11, works on AVR,
-ESP32, ESP8266, RP2040, SAMD…). It replaces scattered `Serial.print()` debugging:
-levels are filtered at runtime, and disabled levels can be removed from the firmware at
-compile time.
+ESP32, ESP8266, RP2040, SAMD…). It replaces scattered `Serial.print()` debugging with
+calls that look the same, can be turned off at runtime, and are removed from the firmware
+at compile time. It is aimed at beginners: write code a beginner can read.
 
 Follow the rules below exactly. They exist because the obvious Arduino habits
-(`String` concatenation, `Serial.print` everywhere, side effects in debug lines) are
+(`String` concatenation, `Serial.print` everywhere, side effects in macro arguments) are
 wrong with this library.
 
 ## Installation
@@ -24,7 +24,7 @@ PlatformIO (`platformio.ini`):
 
 ```ini
 lib_deps =
-    https://github.com/YuriCirino/xlogger.git#v1.1.0
+    https://github.com/YuriCirino/xlogger.git#v1.2.0
 ```
 
 Arduino IDE: *Sketch → Include Library → Add .ZIP Library…* with the repository ZIP.
@@ -37,14 +37,14 @@ Arduino IDE: *Sketch → Include Library → Add .ZIP Library…* with the repos
 XLogger logger(Serial);  // global, constructed with any Print
 
 void setup() {
-  Serial.begin(115200);  // the stream must be started by the user, xLogger never calls begin()
-  XLOG_INFO(logger, F("boot ok"));
+  Serial.begin(115200);  // the user starts the stream; xLogger never calls begin()
+  logger.info("boot ok");
 }
 
 void loop() {
   int adc = analogRead(A0);
   float volts = adc * 5.0f / 1023.0f;
-  XLOG_DEBUG(logger, F("adc="), adc, F(" volts="), volts);
+  logger.debug("adc=", adc, " volts=", volts);
   delay(1000);
 }
 ```
@@ -58,16 +58,21 @@ Output:
 
 ## Rules
 
-1. **Log through the macros**: `XLOG_ERROR`, `XLOG_WARN`, `XLOG_INFO`, `XLOG_DEBUG`,
-   `XLOG_HERE`. The methods (`logger.debug(...)`) only filter at runtime; the macros also
-   disappear from the binary when compiled out. First macro argument is always the logger.
-2. **Separate values with commas.** Every argument is passed to `Print::print()` in order.
+1. **Default to the methods**: `logger.error()`, `logger.warn()`, `logger.info()`,
+   `logger.debug()`. They read like `Serial.print()`, are removed from the firmware when the
+   level is compiled out, and always evaluate their arguments, so debug and release builds
+   behave the same.
+2. **Use the `XLOG_*` macros only when there is a reason**:
+   - `XLOG_HERE(logger)` — prints the calling function and line; it only exists as a macro.
+   - `XLOG_DEBUG(logger, ...)` etc. — when an argument is expensive to compute and should
+     not run in release builds. Compiled-out macros discard their arguments, so they must
+     never contain side effects (`i++`, a call that changes state).
+   - Follow the style the project already uses; don't mix both without a reason.
+3. **Separate values with commas.** Each argument is passed to `Print::print()` in order.
    Never build the message with `String(...)` or `+`.
-3. **Wrap string literals in `F()`** so they stay in flash (critical on AVR: 2 KB of RAM).
-4. **No side effects inside macro arguments.** A compiled-out macro is removed with its
-   arguments: `XLOG_DEBUG(logger, i++)` or `XLOG_DEBUG(logger, readSensor())` silently
-   change behavior between debug and release builds. Compute first, log the variable.
-5. **Configure the compile-time level with build flags**, not with `#define` in one file:
+4. **On small-RAM boards (AVR: Uno, Nano, Mega, Leonardo), wrap text literals in `F()`**:
+   `logger.info(F("boot ok"))`. On ESP32/ESP8266/RP2040 it is optional.
+5. **Configure the compile-time level with build flags**, not `#define` in one file:
    `build_flags = -D XLOGGER_MAX_LEVEL=XLOG_LEVEL_WARN`. A `#define XLOGGER_MAX_LEVEL`
    only works if it appears **before** `#include <xLogger.h>` and only affects that file.
 6. **Do not add newlines or prefixes manually.** Each call prints `[L] ` + arguments + CRLF.
@@ -75,30 +80,39 @@ Output:
 8. **Don't log every iteration of a fast loop.** `Serial` blocks when its TX buffer is full
    and changes timing. Log on change, every N iterations, or with a `millis()` interval.
 9. **Pick the right level:**
-   - `ERROR` — operation failed, the system cannot continue normally.
-   - `WARN` — abnormal but recoverable (retry, out-of-range reading, low battery).
-   - `INFO` — important events, a few per minute at most (boot, connected, state change).
-   - `DEBUG` — variable values and details for development.
-   - `XLOG_HERE(logger)` — "reached this point": prints the calling function and line.
+   - `error` — operation failed, the system cannot continue normally.
+   - `warn` — abnormal but recoverable (retry, out-of-range reading, low battery).
+   - `info` — important events, a few per minute at most (boot, connected, state change).
+   - `debug` — variable values and details for development.
 10. **Native-USB boards** (Leonardo, Pro Micro, ESP32-S2/S3, RP2040, SAMD): to see boot
     messages, wait for the port **with a timeout**, otherwise the board hangs without a PC:
     `while (!Serial && millis() < 3000) {}`.
+
+## Methods vs macros
+
+| | `logger.info(...)` (default) | `XLOG_INFO(logger, ...)` |
+|---|---|---|
+| Output | `[I] ...` | identical |
+| Filtered at runtime by `setLevel()` | yes | yes |
+| Removed from firmware above `XLOGGER_MAX_LEVEL` | yes (code and `F()` strings) | yes |
+| Arguments evaluated when compiled out | **yes** | **no** |
 
 ## API
 
 | Member | Description |
 |---|---|
 | `XLogger(Print& out, XLogLevel level = XLogLevel::Debug)` | Constructor. `out` can be `Serial`, `Serial1`, `SoftwareSerial`, an LCD, an SD `File`… |
-| `XLOG_ERROR/WARN/INFO/DEBUG(lg, args...)` | Log with prefix `[E]`, `[W]`, `[I]`, `[D]` |
+| `lg.error/warn/info/debug(args...)` | Log with prefix `[E]`, `[W]`, `[I]`, `[D]` |
+| `XLOG_ERROR/WARN/INFO/DEBUG(lg, args...)` | Same output; arguments skipped when compiled out |
 | `XLOG_HERE(lg)` | Prints `[H] function:line` (debug level) |
 | `lg.setLevel(XLogLevel)` / `lg.level()` | Runtime level: `None`, `Error`, `Warn`, `Info`, `Debug` |
-| `lg.enabled(XLogLevel)` | `true` if that level would print now |
+| `lg.enabled(XLogLevel)` | `true` if that level would print now (honors `XLOGGER_MAX_LEVEL` too) |
 | `lg.setTimestamp(bool)` | Prefix lines with `millis()` |
 | `lg.setTag(const char*)` | Adds `[TAG]` after the level; `nullptr` removes it |
 | `lg.setOutput(Print&)` / `lg.output()` | Change / get the output stream |
 | `lg.setDebugMode(bool)`, `lg.print(x)`, `lg.println(x)` | Legacy API (debug level, no prefix). Do not use in new code |
 | `XLOGGER_MAX_LEVEL` | Compile-time ceiling: `XLOG_LEVEL_NONE` 0, `_ERROR` 1, `_WARN` 2, `_INFO` 3, `_DEBUG` 4 (default) |
-| `XLOGGER_VERSION` | Version string, e.g. `"1.1.0"` |
+| `XLOGGER_VERSION` | Version string, e.g. `"1.2.0"` |
 
 A message prints when its level ≤ the runtime level **and** ≤ `XLOGGER_MAX_LEVEL`.
 
@@ -124,8 +138,8 @@ void setup() {
 }
 
 void loop() {
-  XLOG_DEBUG(imuLog, F("ax="), 0.02f, F(" ay="), -0.98f);  // 1520 [D][IMU] ax=0.02 ay=-0.98
-  XLOG_WARN(wifiLog, F("weak signal: "), -85);            // 1520 [W][WIFI] weak signal: -85
+  imuLog.debug("ax=", 0.02f, " ay=", -0.98f);  // 1520 [D][IMU] ax=0.02 ay=-0.98
+  wifiLog.warn("weak signal: ", -85);          // 1520 [W][WIFI] weak signal: -85
   delay(1000);
 }
 ```
@@ -143,7 +157,9 @@ extern XLogger logger;
 XLogger logger(Serial);
 ```
 
-### Skip expensive work when the level is off
+### Expensive diagnostics
+
+Either skip the work explicitly with `enabled()` (removed entirely in release builds):
 
 ```cpp
 #include <xLogger.h>
@@ -163,10 +179,13 @@ void setup() { Serial.begin(115200); }
 void loop() {
   if (logger.enabled(XLogLevel::Debug)) {
     float value = rms(samples, 64);
-    XLOG_DEBUG(logger, F("rms="), value);
+    logger.debug("rms=", value);
   }
 }
 ```
+
+or use a macro, whose arguments are not evaluated when compiled out:
+`XLOG_DEBUG(logger, "rms=", rms(samples, 64));`.
 
 ### Rate-limited logging in a fast loop
 
@@ -183,7 +202,7 @@ void loop() {
   static unsigned long lastLog = 0;
   if (millis() - lastLog >= 500) {
     lastLog = millis();
-    XLOG_DEBUG(logger, F("adc="), adc);
+    logger.debug("adc=", adc);
   }
 }
 ```
@@ -207,7 +226,7 @@ void setup() {
 void loop() {
   if (buttonPressed) {
     buttonPressed = false;
-    XLOG_INFO(logger, F("button pressed"));
+    logger.info(F("button pressed"));
   }
 }
 ```
@@ -221,7 +240,7 @@ board = uno
 framework = arduino
 monitor_speed = 115200
 lib_deps =
-    https://github.com/YuriCirino/xlogger.git#v1.1.0
+    https://github.com/YuriCirino/xlogger.git#v1.2.0
 
 [env:debug]
 build_flags = -D XLOGGER_MAX_LEVEL=XLOG_LEVEL_DEBUG
@@ -230,7 +249,7 @@ build_flags = -D XLOGGER_MAX_LEVEL=XLOG_LEVEL_DEBUG
 build_flags = -D XLOGGER_MAX_LEVEL=XLOG_LEVEL_WARN
 ```
 
-`pio run -e release` produces firmware without debug/info strings or code.
+`pio run -e release` produces firmware without debug/info code or strings, for methods and macros.
 
 ### Change the level at runtime over Serial
 
@@ -250,7 +269,8 @@ void loop() {
       case 'n': logger.setLevel(XLogLevel::None);  break;
     }
   }
-  XLOG_DEBUG(logger, F("tick "), millis());
+  logger.debug("tick ", millis());
+  XLOG_HERE(logger);
   delay(500);
 }
 ```
@@ -258,26 +278,25 @@ void loop() {
 ## Anti-patterns → correct form
 
 ```c++
-// ✗ String concatenation: heap allocation, built even when the level is off
-XLOG_DEBUG(logger, "temp=" + String(t));
+// ✗ String concatenation: heap allocation and fragmentation
+logger.debug("temp=" + String(t));
 // ✓
-XLOG_DEBUG(logger, F("temp="), t);
+logger.debug("temp=", t);
 
-// ✗ Side effect disappears in release builds
-XLOG_DEBUG(logger, F("count="), ++count);
-// ✓
-++count;
-XLOG_DEBUG(logger, F("count="), count);
+// ✗ Side effect inside a macro disappears in release builds
+XLOG_DEBUG(logger, "count=", ++count);
+// ✓ use the method (arguments always run), or compute first
+logger.debug("count=", ++count);
 
 // ✗ Plain Serial.print for debug output
 Serial.print("x="); Serial.println(x);
 // ✓
-XLOG_DEBUG(logger, F("x="), x);
+logger.debug("x=", x);
 
 // ✗ Manual newline or level prefix
-XLOG_INFO(logger, F("[INFO] ready\n"));
+logger.info("[INFO] ready\n");
 // ✓
-XLOG_INFO(logger, F("ready"));
+logger.info("ready");
 
 // ✗ #define after the include has no effect
 #include <xLogger.h>
@@ -292,23 +311,20 @@ while (!Serial && millis() < 3000) {}
 
 ## Limitations
 
-- No format specifiers: `print(value, HEX)` or a chosen number of decimals are not supported
-  through the macros; floats print with 2 decimals. For hex, log the value and let the reader
-  convert, or format into a `char` buffer with `snprintf` (note: `%f` is not supported by
-  `snprintf` on AVR).
+- No format specifiers: `print(value, HEX)` or a chosen number of decimals are not supported;
+  floats print with 2 decimals. For hex, format into a `char` buffer with `snprintf`
+  (note: `%f` is not supported by `snprintf` on AVR).
 - `int64_t` / `uint64_t` cannot be printed on AVR (the core's `Print` has no overload).
   Cast to `long` / `unsigned long`.
 - Not thread-safe: on ESP32 with several FreeRTOS tasks, lines may interleave.
-- Variables used only inside compiled-out macros may trigger "unused variable" warnings in
-  release builds.
 
 ## Migrating from Serial.print debugging
 
 | Before | After |
 |---|---|
-| `#define DEBUG 1` + `#if DEBUG Serial.println(x); #endif` | `XLOG_DEBUG(logger, x);` + `XLOGGER_MAX_LEVEL` build flag |
-| `Serial.print("v="); Serial.println(v);` | `XLOG_DEBUG(logger, F("v="), v);` |
-| `Serial.println("ERROR: sensor");` | `XLOG_ERROR(logger, F("sensor"));` |
+| `#define DEBUG 1` + `#if DEBUG Serial.println(x); #endif` | `logger.debug(x);` + `XLOGGER_MAX_LEVEL` build flag |
+| `Serial.print("v="); Serial.println(v);` | `logger.debug("v=", v);` |
+| `Serial.println("ERROR: sensor");` | `logger.error("sensor");` |
 | `Serial.println(__LINE__);` | `XLOG_HERE(logger);` |
 
 Keep `Serial.begin()` in `setup()`. Keep `Serial.print` only for output that is the product

@@ -2,21 +2,56 @@
 
 [English](../README.md) · **Português**
 
-Este guia leva você de um projeto vazio até um firmware com logs de debug que somem
-da versão final sem precisar comentar nenhuma linha.
+Logs de debug para Arduino e PlatformIO que funcionam como o `Serial.print()`, mas
+podem ser desligados sem comentar nenhuma linha e removidos do firmware final.
 
-- [1. Instalar o PlatformIO](#1-instalar-o-platformio)
-- [2. Criar o projeto](#2-criar-o-projeto)
-- [3. Adicionar o xLogger](#3-adicionar-o-xlogger)
-- [4. Primeiro log](#4-primeiro-log)
-- [5. Níveis de log](#5-níveis-de-log)
-- [6. Ambientes de debug e de release](#6-ambientes-de-debug-e-de-release)
-- [7. Recursos extras](#7-recursos-extras)
-- [8. Migrando da classe `Logger` antiga](#8-migrando-da-classe-logger-antiga)
-- [9. Problemas comuns](#9-problemas-comuns)
-- [10. Usando com IA (ChatGPT, Claude, Gemini, Copilot…)](#10-usando-com-ia-chatgpt-claude-gemini-copilot)
-- [11. Sugestões, dúvidas e bugs](#11-sugestões-dúvidas-e-bugs)
-- [12. Para o mantenedor: publicando uma nova versão](#12-para-o-mantenedor-publicando-uma-nova-versão)
+## Sumário
+
+| | |
+|---|---|
+| 🚀 [Começo rápido](#começo-rápido) | Já tem um projeto? Comece aqui |
+| 🧰 [1. Instalar o PlatformIO](#1-instalar-o-platformio) · [2. Criar o projeto](#2-criar-o-projeto) · [3. Adicionar o xLogger](#3-adicionar-o-xlogger) | Do zero, passo a passo |
+| ✍️ [4. Primeiro log](#4-primeiro-log) | Seu primeiro log em 1 minuto |
+| ⚖️ [5. Duas formas: `logger.info()` ou `XLOG_INFO()`](#5-duas-formas-loggerinfo-ou-xlog_info) | Qual usar e por quê |
+| 📶 [6. Níveis de log](#6-níveis-de-log) | error, warn, info, debug |
+| 🔧 [7. Ambientes de debug e de release](#7-ambientes-de-debug-e-de-release) | Tirar os logs do firmware final |
+| ➕ [8. Recursos extras](#8-recursos-extras) | Timestamp, tags, outra saída |
+| 🔁 [9. Migrando da classe `Logger` antiga](#9-migrando-da-classe-logger-antiga) | Para quem usava a versão anterior |
+| 🩺 [10. Problemas comuns](#10-problemas-comuns) | Não compila, nada aparece no monitor… |
+| 🤖 [11. Usando com IA](#11-usando-com-ia-chatgpt-claude-gemini-copilot) | ChatGPT, Claude, Copilot escrevendo código certo |
+| 🐛 [12. Sugestões, dúvidas e bugs](#12-sugestões-dúvidas-e-bugs) | Fale com a gente |
+| 🛠️ [13. Para o mantenedor](#13-para-o-mantenedor-publicando-uma-nova-versão) | Publicar novas versões |
+
+## Começo rápido
+
+No `platformio.ini`:
+
+```ini
+lib_deps =
+    https://github.com/YuriCirino/xlogger.git#v1.2.0
+```
+
+No código, use como o `Serial.print()`, separando os valores por **vírgula**:
+
+```cpp
+#include <xLogger.h>
+
+XLogger logger(Serial);
+
+void setup() {
+  Serial.begin(115200);
+  logger.info("boot ok");                        // [I] boot ok
+}
+
+void loop() {
+  int adc = analogRead(A0);
+  logger.debug("adc=", adc, " volts=", adc * 5.0 / 1023);  // [D] adc=512 volts=2.50
+  delay(1000);
+}
+```
+
+Para esconder os logs de debug: `logger.setLevel(XLogLevel::Info);`.
+Para tirá-los do firmware final, veja a [seção 7](#7-ambientes-de-debug-e-de-release).
 
 ---
 
@@ -53,13 +88,16 @@ board = uno
 framework = arduino
 monitor_speed = 115200
 lib_deps =
-    https://github.com/YuriCirino/xlogger.git#v1.1.0
+    https://github.com/YuriCirino/xlogger.git#v1.2.0
 ```
 
-O `#v1.1.0` fixa a versão. Sem ele, o PlatformIO baixa o que estiver no branch
+O `#v1.2.0` fixa a versão. Sem ele, o PlatformIO baixa o que estiver no branch
 principal, e uma atualização da lib pode mudar o comportamento do seu firmware sem você perceber.
 
 Na próxima compilação (✓ na barra inferior), a biblioteca é baixada para `.pio/libdeps/`.
+
+**Arduino IDE:** na página do repositório, *Code → Download ZIP*; depois
+*Sketch → Incluir Biblioteca → Adicionar biblioteca .ZIP…*
 
 ## 4. Primeiro log
 
@@ -73,14 +111,14 @@ XLogger logger(Serial);
 
 void setup() {
   Serial.begin(115200);
-  XLOG_INFO(logger, F("boot ok"));
+  logger.info("boot ok");
 }
 
 void loop() {
   int adc = analogRead(A0);
   float v = adc * 5.0f / 1023.0f;
 
-  XLOG_DEBUG(logger, F("adc="), adc, F(" v="), v);
+  logger.debug("adc=", adc, " v=", v);
   delay(1000);
 }
 ```
@@ -93,19 +131,42 @@ Compile e grave (→ na barra inferior), depois abra o monitor serial (🔌):
 [D] adc=514 v=2.51
 ```
 
-Repare que não há `String(...)` nem `+`: cada argumento separado por vírgula é impresso
-em sequência. O `F("...")` mantém o texto na memória flash em vez da RAM, o que importa
-no Uno (2 KB de RAM).
+Repare que não há `String(...)` nem `+`: cada valor separado por vírgula é impresso
+em sequência, e o `[I]`/`[D]` e a quebra de linha são colocados para você.
 
-## 5. Níveis de log
+**Dica de memória:** envolva textos fixos em `F("...")`, como em `logger.info(F("boot ok"))`.
+Assim o texto fica na memória flash em vez da RAM, o que faz diferença no Uno (2 KB de RAM).
 
-| Macro | Uso típico | Saída |
+## 5. Duas formas: `logger.info()` ou `XLOG_INFO()`
+
+As duas imprimem exatamente a mesma coisa. **Na dúvida, use `logger.info()`.**
+
+| | `logger.info(...)` ✅ recomendada | `XLOG_INFO(logger, ...)` avançada |
 |---|---|---|
-| `XLOG_ERROR` | Algo falhou e o sistema não consegue seguir normalmente | `[E] ...` |
-| `XLOG_WARN`  | Situação anormal, mas o sistema continua | `[W] ...` |
-| `XLOG_INFO`  | Eventos importantes: boot, conexão, mudança de estado | `[I] ...` |
-| `XLOG_DEBUG` | Valores de variáveis, detalhes para depuração | `[D] ...` |
-| `XLOG_HERE`  | "Passou por aqui": imprime função e linha | `[H] loop:42` |
+| Parece com | `Serial.print()` | Uma macro de C |
+| Desliga em tempo de execução com `setLevel()` | ✅ | ✅ |
+| Sai do firmware no build de release | ✅ | ✅ |
+| Os argumentos rodam no release | ✅ Sim — o programa se comporta igual no debug e no release | ❌ Não — são descartados, então **nada de efeito colateral** dentro |
+| Quando usar | No dia a dia | Quando o argumento é caro de calcular |
+
+```cpp
+logger.debug("sensor=", lerSensor());        // lerSensor() sempre roda
+XLOG_DEBUG(logger, "sensor=", lerSensor());  // no release, lerSensor() NÃO é chamada
+XLOG_HERE(logger);                           // só existe como macro: imprime [H] loop:42
+```
+
+O `XLOG_HERE(logger)`, que mostra a função e o número da linha, só existe como macro,
+porque só uma macro consegue saber em que linha foi escrita.
+
+## 6. Níveis de log
+
+| Método | Macro | Uso típico | Saída |
+|---|---|---|---|
+| `logger.error(...)` | `XLOG_ERROR(logger, ...)` | Algo falhou e o sistema não consegue seguir normalmente | `[E] ...` |
+| `logger.warn(...)`  | `XLOG_WARN(logger, ...)`  | Situação anormal, mas o sistema continua | `[W] ...` |
+| `logger.info(...)`  | `XLOG_INFO(logger, ...)`  | Eventos importantes: boot, conexão, mudança de estado | `[I] ...` |
+| `logger.debug(...)` | `XLOG_DEBUG(logger, ...)` | Valores de variáveis, detalhes para depuração | `[D] ...` |
+| — | `XLOG_HERE(logger)` | "Passou por aqui": imprime função e linha | `[H] loop:42` |
 
 O nível do logger define o que aparece. Uma mensagem é impressa se o nível dela for
 menor ou igual ao do logger:
@@ -119,11 +180,12 @@ logger.setLevel(XLogLevel::None);   // nada
 Isso pode mudar com o firmware rodando, por exemplo por um comando recebido pela serial
 (veja o exemplo [`LevelsAndTags`](../examples/LevelsAndTags/LevelsAndTags.ino)).
 
-## 6. Ambientes de debug e de release
+## 7. Ambientes de debug e de release
 
-Este é o ponto principal da biblioteca. O `setLevel()` só esconde a mensagem: o texto e o
-código continuam ocupando flash. Para remover de verdade, defina o nível máximo
-**em tempo de compilação** com `build_flags`.
+O `setLevel()` só esconde a mensagem: o texto e o código continuam ocupando flash.
+Para remover de verdade, defina o nível máximo **em tempo de compilação** com `build_flags`.
+Vale para `logger.debug()` e para `XLOG_DEBUG()`. O CI do projeto confere isso abrindo
+o firmware gerado para Uno e ESP32.
 
 Crie dois ambientes no `platformio.ini`:
 
@@ -134,7 +196,7 @@ board = uno
 framework = arduino
 monitor_speed = 115200
 lib_deps =
-    https://github.com/YuriCirino/xlogger.git#v1.1.0
+    https://github.com/YuriCirino/xlogger.git#v1.2.0
 
 [env:debug]
 build_flags = -D XLOGGER_MAX_LEVEL=XLOG_LEVEL_DEBUG
@@ -146,26 +208,26 @@ build_flags = -D XLOGGER_MAX_LEVEL=XLOG_LEVEL_WARN
 A seção `[env]` sem nome vale para todos os ambientes. Agora:
 
 - **Debug:** `pio run -e debug -t upload` — todos os logs.
-- **Release:** `pio run -e release -t upload` — só `XLOG_WARN` e `XLOG_ERROR` existem no binário.
+- **Release:** `pio run -e release -t upload` — só `warn` e `error` existem no binário.
 
 No VS Code, escolha o ambiente na barra inferior (botão `env:...`).
 
 Para ver a diferença, compile os dois e compare a linha `Flash:` no fim da saída da compilação.
 
-> ⚠️ **Não coloque efeitos colaterais dentro das macros.** No release, a linha inteira
-> desaparece, incluindo os argumentos:
+> ⚠️ **Se usar as macros, não coloque efeitos colaterais dentro delas.** No release, a linha
+> inteira desaparece, incluindo os argumentos:
 >
 > ```cpp
-> XLOG_DEBUG(logger, F("lido: "), lerSensor());  // no release, lerSensor() NÃO é chamada
-> XLOG_DEBUG(logger, contador++);                // no release, contador NÃO incrementa
+> XLOG_DEBUG(logger, "lido: ", lerSensor());  // no release, lerSensor() NÃO é chamada
+> XLOG_DEBUG(logger, contador++);             // no release, contador NÃO incrementa
 > ```
 >
-> Leia o valor antes, em uma variável, e logue a variável.
+> Com os métodos (`logger.debug(...)`) isso não acontece: os argumentos sempre rodam.
 
 Valores aceitos em `XLOGGER_MAX_LEVEL`: `XLOG_LEVEL_NONE` (0), `XLOG_LEVEL_ERROR` (1),
 `XLOG_LEVEL_WARN` (2), `XLOG_LEVEL_INFO` (3) e `XLOG_LEVEL_DEBUG` (4, o padrão).
 
-## 7. Recursos extras
+## 8. Recursos extras
 
 **Timestamp:**
 
@@ -201,11 +263,13 @@ logger.setOutput(Serial);        // troca em runtime
 ```cpp
 if (logger.enabled(XLogLevel::Debug)) {
   float rms = calcularRMS(buffer, 512);
-  XLOG_DEBUG(logger, F("rms="), rms);
+  logger.debug("rms=", rms);
 }
 ```
 
-## 8. Migrando da classe `Logger` antiga
+O `enabled()` também considera o `XLOGGER_MAX_LEVEL`: no release, o bloco inteiro some.
+
+## 9. Migrando da classe `Logger` antiga
 
 A API antiga continua disponível, então dá para migrar aos poucos:
 
@@ -214,12 +278,12 @@ A API antiga continua disponível, então dá para migrar aos poucos:
 | `#include "Logger.h"` | `#include <xLogger.h>` |
 | `Logger logger(Serial);` | `XLogger logger(Serial, XLogLevel::None);` (desligado, como antes) |
 | `logger.setDebugMode(true);` | `logger.setLevel(XLogLevel::Debug);` (o antigo ainda funciona) |
-| `logger.println("x=" + String(x));` | `XLOG_DEBUG(logger, F("x="), x);` |
+| `logger.println("x=" + String(x));` | `logger.debug("x=", x);` |
 | `logger.print(...)` / `println(...)` | Continuam funcionando, sem prefixo |
 | `logger.setSerial(Serial1);` | `logger.setOutput(Serial1);` |
 | `logger.line();` | `XLOG_HERE(logger);` (agora mostra a linha certa) |
 
-## 9. Problemas comuns
+## 10. Problemas comuns
 
 **`xLogger.h: No such file or directory`**
 O `lib_deps` está no ambiente errado ou com erro de digitação. Confira se ele está no
@@ -243,7 +307,7 @@ Use `build_flags` no `platformio.ini` para valer no projeto inteiro.
 **Mudei `build_flags` e o comportamento não mudou**
 Faça um *Clean* (🗑 na barra inferior, ou `pio run -t clean`) e compile de novo.
 
-## 10. Usando com IA (ChatGPT, Claude, Gemini, Copilot…)
+## 11. Usando com IA (ChatGPT, Claude, Gemini, Copilot…)
 
 Uma IA não conhece o xLogger de antemão. Sem contexto, ela tende a inventar funções ou
 voltar para o `Serial.print()` com `String`. Por isso a biblioteca traz uma referência
@@ -281,7 +345,7 @@ lê-lo direto. Basta pedir:
 
 > Antes de mexer nos logs, leia `.pio/libdeps/debug/xLogger/llms-full.txt`.
 
-## 11. Sugestões, dúvidas e bugs
+## 12. Sugestões, dúvidas e bugs
 
 Sua opinião ajuda a melhorar a biblioteca. Pode escrever em português ou em inglês.
 
@@ -297,7 +361,7 @@ informações novas. Todas as interações seguem o [Código de Conduta](../CODE
 
 Você precisa de uma conta gratuita no GitHub para abrir issues.
 
-## 12. Para o mantenedor: publicando uma nova versão
+## 13. Para o mantenedor: publicando uma nova versão
 
 ### A cada nova versão
 

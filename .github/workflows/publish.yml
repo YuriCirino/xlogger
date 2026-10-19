@@ -1,7 +1,7 @@
 name: Publish to PlatformIO Registry
 
-# Runs when a GitHub Release is published (e.g. tag v1.1.0).
-# Requires the repository secret PLATFORMIO_AUTH_TOKEN (see docs/GUIA-pt-BR.md, section 12).
+# Runs when a GitHub Release is published (e.g. tag v1.2.0).
+# Requires the repository secret PLATFORMIO_AUTH_TOKEN (see docs/GUIA-pt-BR.md, section 13).
 on:
   release:
     types: [published]

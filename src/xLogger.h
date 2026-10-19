@@ -4,7 +4,7 @@
 #pragma once
 #include <Arduino.h>
 
-#define XLOGGER_VERSION "1.1.0"
+#define XLOGGER_VERSION "1.2.0"
 
 // Level names for XLOGGER_MAX_LEVEL (usable in build flags).
 #define XLOG_LEVEL_NONE  0

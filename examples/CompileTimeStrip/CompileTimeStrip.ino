@@ -1,4 +1,4 @@
-// Release build: strip debug and info logs from the firmware.
+// Release build: remove debug and info logs from the firmware.
 //
 // XLOGGER_MAX_LEVEL must be defined BEFORE the include. In PlatformIO prefer
 // build_flags in platformio.ini (it applies to every file):
@@ -11,7 +11,6 @@
 XLogger logger(Serial);
 
 int expensiveDiagnostics() {
-  // Never called in this build: disabled XLOG_* arguments are not evaluated.
   long sum = 0;
   for (int i = 0; i < 1000; i++) sum += analogRead(A0);
   return sum / 1000;
@@ -23,9 +22,16 @@ void setup() {
 }
 
 void loop() {
-  XLOG_DEBUG(logger, F("avg adc = "), expensiveDiagnostics());  // removed
-  XLOG_INFO(logger, F("this string is not even in flash"));     // removed
-  XLOG_WARN(logger, F("warnings stay"));                        // kept
-  XLOG_ERROR(logger, F("errors stay"));                         // kept
+  // Methods: removed from the firmware, but the arguments still run, so
+  // expensiveDiagnostics() is called here even in this release build.
+  logger.debug("avg adc = ", expensiveDiagnostics());
+  logger.info("this text is not in the firmware");
+
+  // Macros: the whole line disappears, arguments included, so
+  // expensiveDiagnostics() is NOT called here. Never put side effects inside.
+  XLOG_DEBUG(logger, "avg adc = ", expensiveDiagnostics());
+
+  logger.warn("warnings stay");  // kept
+  logger.error("errors stay");   // kept
   delay(1000);
 }

@@ -33,6 +33,9 @@ jobs:
             ~/.platformio/packages
             ~/.platformio/platforms
           key: pio-strip-${{ runner.os }}-${{ matrix.board }}-${{ hashFiles('.github/workflows/ci.yml') }}
+          restore-keys: |
+            pio-strip-${{ runner.os }}-${{ matrix.board }}-
+            pio-${{ runner.os }}-
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
@@ -86,6 +89,8 @@ jobs:
             ~/.platformio/packages
             ~/.platformio/platforms
           key: pio-${{ runner.os }}-${{ hashFiles('.github/workflows/ci.yml') }}
+          restore-keys: |
+            pio-${{ runner.os }}-
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"

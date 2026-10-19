@@ -36,10 +36,10 @@ void loop() {
   static uint16_t n = 0;
   n++;
 
-  XLOG_DEBUG(sensorLog, F("sample #"), n);
-  XLOG_INFO(sensorLog, F("temperature "), 25.3f, F(" C"));
-  XLOG_INFO(motorLog, F("rpm "), 1200);           // filtered (level = Warn)
-  if (n % 5 == 0) XLOG_WARN(motorLog, F("current peak"));
+  sensorLog.debug(F("sample #"), n);
+  sensorLog.info(F("temperature "), 25.3f, F(" C"));
+  motorLog.info(F("rpm "), 1200);           // filtered (level = Warn)
+  if (n % 5 == 0) motorLog.warn(F("current peak"));
 
   // Output example:
   //   10234 [D][SENSOR] sample #10

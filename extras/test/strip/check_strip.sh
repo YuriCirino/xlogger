@@ -8,7 +8,8 @@ work="$(mktemp -d)"
 fail=0
 
 markers() {  # markers found in the ELF built with the given max level
-  local level="$1" dir="$work/l$level"
+  local level="$1"
+  local dir="$work/l$level"
   pio ci --lib="." --board="$board" --keep-build-dir --build-dir="$dir" \
     --project-option="build_flags=-D XLOGGER_MAX_LEVEL=$level" \
     extras/test/strip/strip.ino > "$dir.log" 2>&1 || { cat "$dir.log"; exit 1; }

@@ -6,6 +6,21 @@ uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-19
+
+### Changed
+- `logger.error/warn/info/debug()` now honor `XLOGGER_MAX_LEVEL`: above it they compile to
+  nothing and their code and `F()` strings are removed from the firmware, like the `XLOG_*`
+  macros. Arguments are still evaluated, so debug and release builds behave the same.
+  `here()`, `enabled()` and the legacy `print/println` honor it too.
+- Documentation recommends `logger.info()` (Serial.print-like) as the default style;
+  macros are presented as the advanced option. README and the Portuguese guide start
+  with a table of contents and a "two ways to log" comparison.
+
+### Added
+- CI builds a marker sketch for Uno and ESP32 at two levels and checks the firmware for
+  the disabled strings.
+
 ## [1.1.0] - 2026-10-19
 
 No changes to the library code; everything from 1.0.0 keeps working.
@@ -37,6 +52,7 @@ First public release.
 - Works with any `Print`.
 - Compatibility API (`setDebugMode`, `print`, `println`) from the original `Logger` class.
 
-[Unreleased]: https://github.com/YuriCirino/xlogger/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/YuriCirino/xlogger/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/YuriCirino/xlogger/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/YuriCirino/xlogger/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/YuriCirino/xlogger/releases/tag/v1.0.0

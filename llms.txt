@@ -1,6 +1,6 @@
 # xLogger
 
-> Header-only, leveled logger for Arduino and PlatformIO (C++11; AVR, ESP32, ESP8266, RP2040, SAMD). Log with the XLOG_ERROR/WARN/INFO/DEBUG/HERE macros, passing values as comma-separated arguments (no String concatenation, F() for literals). Disabled levels are removed at compile time with the XLOGGER_MAX_LEVEL build flag, so macro arguments must have no side effects.
+> Header-only, leveled logger for Arduino and PlatformIO (C++11; AVR, ESP32, ESP8266, RP2040, SAMD), aimed at beginners. Log with logger.error/warn/info/debug(...), passing values as comma-separated arguments like Serial.print (no String concatenation; F() for literals on AVR). Levels above the XLOGGER_MAX_LEVEL build flag are removed from the firmware. XLOG_* macros are an advanced alternative that also skip argument evaluation; XLOG_HERE prints function and line.
 
 ## Docs
 
