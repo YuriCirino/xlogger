@@ -17,12 +17,15 @@ jobs:
         run: sh extras/test/run.sh
 
   firmware-strip:
-    name: Disabled levels removed from firmware (${{ matrix.board }})
+    name: Disabled levels removed from firmware (${{ matrix.board }} ${{ matrix.extra }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        board: [uno, esp32dev]
+        include:
+          - { board: uno,      extra: "",    expect: all }
+          - { board: esp32dev, extra: "",    expect: macros }
+          - { board: esp32dev, extra: "-Os", expect: all }
     steps:
       - uses: actions/checkout@v5
       - uses: actions/cache@v4
@@ -32,7 +35,7 @@ jobs:
             ~/.platformio/.cache
             ~/.platformio/packages
             ~/.platformio/platforms
-          key: pio-strip-${{ runner.os }}-${{ matrix.board }}-${{ hashFiles('.github/workflows/ci.yml') }}
+          key: pio-strip-${{ runner.os }}-${{ matrix.board }}-${{ hashFiles('.github/workflows/ci.yml') }}-${{ matrix.extra }}
           restore-keys: |
             pio-strip-${{ runner.os }}-${{ matrix.board }}-
             pio-${{ runner.os }}-
@@ -42,7 +45,7 @@ jobs:
       - name: Install PlatformIO
         run: pip install --upgrade platformio pyelftools
       - name: Build at levels 4 and 2 and inspect the ELF
-        run: bash extras/tools/annotate_on_fail.sh bash extras/test/strip/check_strip.sh ${{ matrix.board }}
+        run: bash extras/tools/annotate_on_fail.sh bash extras/test/strip/check_strip.sh ${{ matrix.board }} "${{ matrix.extra }}" ${{ matrix.expect }}
 
   arduino-lint:
     name: Arduino Library Manager rules
