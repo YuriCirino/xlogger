@@ -6,7 +6,15 @@ uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-19
+
+No changes to the library code; everything from 1.0.0 keeps working.
+
 ### Added
+- `llms-full.txt` and the Agent Skill now ship with the library, so they are available
+  inside `.pio/libdeps/` and in the Arduino libraries folder.
+- CI: `arduino-lint` (Arduino Library Manager rules) and a check that the version matches
+  in every file. Releases are published to the PlatformIO Registry automatically.
 - Issue forms (bug report, feature request, question), pull request template.
 - `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` and `SECURITY.md`.
 - Clearer link to the Portuguese guide; feedback section in README and guide.
@@ -28,3 +36,7 @@ First public release.
 - Optional `millis()` timestamp and per-logger tag.
 - Works with any `Print`.
 - Compatibility API (`setDebugMode`, `print`, `println`) from the original `Logger` class.
+
+[Unreleased]: https://github.com/YuriCirino/xlogger/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/YuriCirino/xlogger/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/YuriCirino/xlogger/releases/tag/v1.0.0

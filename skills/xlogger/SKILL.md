@@ -3,7 +3,7 @@ name: xlogger
 description: Writes and reviews Arduino/PlatformIO firmware that logs through the xLogger library (XLogger class, XLOG_* macros, XLOGGER_MAX_LEVEL). Use when the project includes xLogger.h or lists xlogger in lib_deps, when the user asks to add debug logging with xLogger, or when migrating Serial.print debugging to xLogger.
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   repository: https://github.com/YuriCirino/xlogger
 ---
 
@@ -24,7 +24,7 @@ PlatformIO (`platformio.ini`):
 
 ```ini
 lib_deps =
-    https://github.com/YuriCirino/xlogger.git#v1.0.0
+    https://github.com/YuriCirino/xlogger.git#v1.1.0
 ```
 
 Arduino IDE: *Sketch → Include Library → Add .ZIP Library…* with the repository ZIP.
@@ -98,7 +98,7 @@ Output:
 | `lg.setOutput(Print&)` / `lg.output()` | Change / get the output stream |
 | `lg.setDebugMode(bool)`, `lg.print(x)`, `lg.println(x)` | Legacy API (debug level, no prefix). Do not use in new code |
 | `XLOGGER_MAX_LEVEL` | Compile-time ceiling: `XLOG_LEVEL_NONE` 0, `_ERROR` 1, `_WARN` 2, `_INFO` 3, `_DEBUG` 4 (default) |
-| `XLOGGER_VERSION` | Version string, e.g. `"1.0.0"` |
+| `XLOGGER_VERSION` | Version string, e.g. `"1.1.0"` |
 
 A message prints when its level ≤ the runtime level **and** ≤ `XLOGGER_MAX_LEVEL`.
 
@@ -221,7 +221,7 @@ board = uno
 framework = arduino
 monitor_speed = 115200
 lib_deps =
-    https://github.com/YuriCirino/xlogger.git#v1.0.0
+    https://github.com/YuriCirino/xlogger.git#v1.1.0
 
 [env:debug]
 build_flags = -D XLOGGER_MAX_LEVEL=XLOG_LEVEL_DEBUG

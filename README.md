@@ -56,7 +56,7 @@ In `platformio.ini`:
 
 ```ini
 lib_deps =
-    https://github.com/YuriCirino/xlogger.git#v1.0.0
+    https://github.com/YuriCirino/xlogger.git#v1.1.0
 ```
 
 ### Arduino IDE

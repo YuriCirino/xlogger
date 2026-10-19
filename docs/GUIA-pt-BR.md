@@ -53,10 +53,10 @@ board = uno
 framework = arduino
 monitor_speed = 115200
 lib_deps =
-    https://github.com/YuriCirino/xlogger.git#v1.0.0
+    https://github.com/YuriCirino/xlogger.git#v1.1.0
 ```
 
-O `#v1.0.0` fixa a versão. Sem ele, o PlatformIO baixa o que estiver no branch
+O `#v1.1.0` fixa a versão. Sem ele, o PlatformIO baixa o que estiver no branch
 principal, e uma atualização da lib pode mudar o comportamento do seu firmware sem você perceber.
 
 Na próxima compilação (✓ na barra inferior), a biblioteca é baixada para `.pio/libdeps/`.
@@ -134,7 +134,7 @@ board = uno
 framework = arduino
 monitor_speed = 115200
 lib_deps =
-    https://github.com/YuriCirino/xlogger.git#v1.0.0
+    https://github.com/YuriCirino/xlogger.git#v1.1.0
 
 [env:debug]
 build_flags = -D XLOGGER_MAX_LEVEL=XLOG_LEVEL_DEBUG
@@ -299,30 +299,56 @@ Você precisa de uma conta gratuita no GitHub para abrir issues.
 
 ## 12. Para o mantenedor: publicando uma nova versão
 
+### A cada nova versão
+
 1. Atualize a versão em **quatro** lugares: `library.json`, `library.properties`,
    `XLOGGER_VERSION` em `src/xLogger.h` e `metadata.version` em `skills/xlogger/SKILL.md`.
+   Troque também o `#vX.Y.Z` dos exemplos de `lib_deps` na documentação.
+   Confira com `python3 extras/tools/check_version.py`.
 2. Se a API mudou, atualize o `SKILL.md` e regenere a referência para IA com
    `python3 extras/tools/ai_docs.py build` (nunca edite o `llms-full.txt` à mão).
-   Registre as mudanças em `CHANGELOG.md`.
-3. Commit, tag e push:
+3. No `CHANGELOG.md`, transforme `[Unreleased]` em `[X.Y.Z] - data` e atualize os links
+   de comparação no fim do arquivo.
+4. Commit e push no `main`. Espere o CI ficar verde.
+5. No GitHub: *Releases* → **Draft a new release** → *Choose a tag* → digite `vX.Y.Z` →
+   *Create new tag on publish*. Título `xLogger X.Y.Z`; na descrição, cole a seção da versão
+   do `CHANGELOG.md`. Clique em **Publish release**.
 
-   ```bash
-   git commit -am "Release v1.1.0"
-   git tag v1.1.0
-   git push && git push --tags
-   ```
-
-4. **Registro do PlatformIO** (opcional, permite `lib_deps = <seu-usuario-platformio>/xLogger@^1.1.0`):
-
-   ```bash
-   pip install platformio
-   pio account login          # crie a conta em platformio.org na primeira vez
-   pio pkg publish            # rode na raiz do repositório
-   ```
-
-5. **Arduino Library Manager** (opcional, só na primeira vez): abra uma issue em
-   [arduino/library-registry](https://github.com/arduino/library-registry) pedindo a inclusão
-   do repositório. Depois disso, cada nova tag é detectada automaticamente.
+A partir daí é automático:
+- o workflow **Publish to PlatformIO Registry** confere se a tag bate com a versão e
+  publica no registro do PlatformIO (se o segredo abaixo estiver configurado);
+- o **Arduino Library Manager** detecta a tag nova sozinho, em até um dia
+  (depois da inscrição inicial, abaixo).
 
 Siga versionamento semântico: `1.0.1` para correções, `1.1.0` para novos recursos
 compatíveis, `2.0.0` quando quebrar a API.
+
+### Configuração única: registro do PlatformIO
+
+Permite que usuários instalem com `lib_deps = <seu-usuario-platformio>/xLogger@^1.1.0`
+e que a lib apareça na busca do PlatformIO.
+
+1. Crie uma conta em [platformio.org](https://platformio.org/).
+2. No seu computador:
+
+   ```bash
+   pip install platformio
+   pio account login
+   pio account token          # copie o token exibido
+   ```
+
+3. No GitHub: *Settings* → *Secrets and variables* → *Actions* → **New repository secret**.
+   Nome `PLATFORMIO_AUTH_TOKEN`, valor: o token copiado.
+4. Para publicar uma versão que já existe (sem criar release nova): *Actions* →
+   *Publish to PlatformIO Registry* → **Run workflow**.
+
+O token dá acesso à sua conta PlatformIO: nunca o coloque em arquivos do repositório.
+
+### Configuração única: Arduino Library Manager
+
+1. Abra [repositories.txt no arduino/library-registry](https://github.com/arduino/library-registry/edit/main/repositories.txt).
+2. Adicione no fim uma linha com `https://github.com/YuriCirino/xlogger`.
+3. **Propose changes** → **Create pull request**.
+4. Um bot valida a biblioteca (é o mesmo `arduino-lint` que roda no nosso CI) e aceita
+   a inclusão automaticamente se estiver tudo certo. Se ele comentar algum problema,
+   corrija no repositório e responda no pull request.

@@ -37,6 +37,8 @@ pio ci --lib="." --board=uno examples/Basic/Basic.ino
   `skills/xlogger/SKILL.md` (then `ai_docs.py build`), `CHANGELOG.md` (under `Unreleased`),
   and add a test in `extras/test/test_xlogger.cpp`.
 - Version lives in four places that must match: `library.json`, `library.properties`,
-  `XLOGGER_VERSION` in `src/xLogger.h`, and `metadata.version` in `SKILL.md`.
+  `XLOGGER_VERSION` in `src/xLogger.h`, and `metadata.version` in `SKILL.md`
+  (`python3 extras/tools/check_version.py` verifies). Releases are published by
+  `.github/workflows/publish.yml` when a GitHub Release is created.
 - Never edit `llms-full.txt` by hand.
 - Style: 2-space indent, `camelCase` methods, trailing `_` on private members.

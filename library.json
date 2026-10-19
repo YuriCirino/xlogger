@@ -1,6 +1,6 @@
 {
   "name": "xLogger",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Lightweight leveled logger for Arduino/PlatformIO. Variadic printing without String, F() support, caller line/function, timestamps, and compile-time removal of disabled levels.",
   "keywords": "logging, logger, log, debug, serial, print",
   "repository": {
