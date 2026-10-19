@@ -40,7 +40,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install PlatformIO
-        run: pip install --upgrade platformio
+        run: pip install --upgrade platformio pyelftools
       - name: Build at levels 4 and 2 and inspect the ELF
         run: bash extras/tools/annotate_on_fail.sh bash extras/test/strip/check_strip.sh ${{ matrix.board }}
 
