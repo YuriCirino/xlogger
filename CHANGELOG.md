@@ -9,9 +9,10 @@ uses [Semantic Versioning](https://semver.org/).
 ## [1.2.0] - 2026-10-19
 
 ### Changed
-- `logger.error/warn/info/debug()` now honor `XLOGGER_MAX_LEVEL`: above it they compile to
-  nothing and their code and `F()` strings are removed from the firmware, like the `XLOG_*`
-  macros. Arguments are still evaluated, so debug and release builds behave the same.
+- `logger.error/warn/info/debug()` now honor `XLOGGER_MAX_LEVEL`: above it their code is
+  removed from the firmware, like the `XLOG_*` macros, and on optimized builds (AVR) their
+  text too. On ESP32 with PlatformIO's default (unoptimized) sketch build the text stays.
+  Arguments are still evaluated, so debug and release builds behave the same.
   `here()`, `enabled()` and the legacy `print/println` honor it too.
 - Documentation recommends `logger.info()` (Serial.print-like) as the default style;
   macros are presented as the advanced option. README and the Portuguese guide start

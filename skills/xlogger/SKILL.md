@@ -94,7 +94,7 @@ Output:
 |---|---|---|
 | Output | `[I] ...` | identical |
 | Filtered at runtime by `setLevel()` | yes | yes |
-| Removed from firmware above `XLOGGER_MAX_LEVEL` | yes (code and `F()` strings) | yes |
+| Removed from firmware above `XLOGGER_MAX_LEVEL` | code: yes; text: yes on optimized builds (AVR), stays on ESP32 with PlatformIO defaults | code and text, always |
 | Arguments evaluated when compiled out | **yes** | **no** |
 
 ## API
@@ -249,7 +249,8 @@ build_flags = -D XLOGGER_MAX_LEVEL=XLOG_LEVEL_DEBUG
 build_flags = -D XLOGGER_MAX_LEVEL=XLOG_LEVEL_WARN
 ```
 
-`pio run -e release` produces firmware without debug/info code or strings, for methods and macros.
+`pio run -e release` produces firmware without debug/info code. On ESP32 with PlatformIO defaults
+the text of disabled method calls stays in flash; use macros there if that matters.
 
 ### Change the level at runtime over Serial
 

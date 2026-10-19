@@ -71,9 +71,13 @@ Both print exactly the same thing. **If in doubt, use `logger.info()`.**
 |---|---|---|
 | Looks like | `Serial.print()` | A C macro |
 | Turned off at runtime with `setLevel()` | ✅ | ✅ |
-| Removed from the firmware in release builds | ✅ | ✅ |
+| Removed from the firmware in release builds | ✅ Code always; text too on AVR (Uno, Nano…)¹ | ✅ Code and text, on every board |
 | Arguments run in release builds | ✅ Yes — the program behaves the same in debug and release | ❌ No — skipped entirely, so **no side effects** inside |
 | Best for | Everyday logging | Expensive arguments (a function that takes time to compute) |
+
+¹ On ESP32 with PlatformIO's default settings the sketch is compiled without optimization,
+so the text of disabled method calls stays in flash (a few bytes per call; the ESP32 has
+megabytes of flash). The macros remove it there too.
 
 ```cpp
 #include <xLogger.h>
@@ -97,8 +101,8 @@ void loop() {
 ## Features
 
 - **Four levels** — `error`, `warn`, `info`, `debug` — change them at runtime with `setLevel()`.
-- **Zero cost when off** — `-D XLOGGER_MAX_LEVEL=XLOG_LEVEL_WARN` removes debug/info calls
-  and their text from the firmware.
+- **Removed from release builds** — `-D XLOGGER_MAX_LEVEL=XLOG_LEVEL_WARN` removes debug/info
+  calls from the firmware.
 - **No `String`** — values go straight to `Print::print()`: no heap allocation, no fragmentation.
 - **Any output** — `Serial`, `Serial1`, USB (Leonardo, ESP32-S3, RP2040), `SoftwareSerial`,
   an LCD, an SD `File`… anything that is a `Print`.
@@ -141,7 +145,8 @@ build_flags = -D XLOGGER_MAX_LEVEL=XLOG_LEVEL_WARN    ; only warnings and errors
 
 Values: `XLOG_LEVEL_NONE` (0), `XLOG_LEVEL_ERROR` (1), `XLOG_LEVEL_WARN` (2),
 `XLOG_LEVEL_INFO` (3), `XLOG_LEVEL_DEBUG` (4, default). This works for both
-`logger.debug()` and `XLOG_DEBUG()` — CI checks it by inspecting real Uno and ESP32 firmware.
+`logger.debug()` and `XLOG_DEBUG()`; CI checks it by inspecting real Uno and ESP32 firmware
+(see the [ESP32 note](#two-ways-to-log-loggerinfo-or-xlog_info) about method text).
 
 > ⚠️ With macros (`XLOG_DEBUG`), the arguments disappear too: `XLOG_DEBUG(logger, i++)` does
 > not increment `i` in a release build. Methods (`logger.debug`) don't have this pitfall.

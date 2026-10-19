@@ -145,9 +145,13 @@ As duas imprimem exatamente a mesma coisa. **Na dúvida, use `logger.info()`.**
 |---|---|---|
 | Parece com | `Serial.print()` | Uma macro de C |
 | Desliga em tempo de execução com `setLevel()` | ✅ | ✅ |
-| Sai do firmware no build de release | ✅ | ✅ |
+| Sai do firmware no build de release | ✅ O código sempre; o texto também no AVR (Uno, Nano…)¹ | ✅ Código e texto, em qualquer placa |
 | Os argumentos rodam no release | ✅ Sim — o programa se comporta igual no debug e no release | ❌ Não — são descartados, então **nada de efeito colateral** dentro |
 | Quando usar | No dia a dia | Quando o argumento é caro de calcular |
+
+¹ No ESP32, com a configuração padrão do PlatformIO, o sketch é compilado sem otimização,
+então o texto das chamadas de método desligadas continua na flash (poucos bytes por chamada;
+o ESP32 tem megabytes de flash). As macros removem o texto lá também.
 
 ```cpp
 logger.debug("sensor=", lerSensor());        // lerSensor() sempre roda
@@ -185,7 +189,7 @@ Isso pode mudar com o firmware rodando, por exemplo por um comando recebido pela
 O `setLevel()` só esconde a mensagem: o texto e o código continuam ocupando flash.
 Para remover de verdade, defina o nível máximo **em tempo de compilação** com `build_flags`.
 Vale para `logger.debug()` e para `XLOG_DEBUG()`. O CI do projeto confere isso abrindo
-o firmware gerado para Uno e ESP32.
+o firmware gerado para Uno e ESP32 (veja a [observação sobre o ESP32](#5-duas-formas-loggerinfo-ou-xlog_info)).
 
 Crie dois ambientes no `platformio.ini`:
 
