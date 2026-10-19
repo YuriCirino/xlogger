@@ -39,7 +39,7 @@ jobs:
       - name: Install PlatformIO
         run: pip install --upgrade platformio
       - name: Build at levels 4 and 2 and inspect the ELF
-        run: bash extras/test/strip/check_strip.sh ${{ matrix.board }}
+        run: bash extras/tools/annotate_on_fail.sh bash extras/test/strip/check_strip.sh ${{ matrix.board }}
 
   arduino-lint:
     name: Arduino Library Manager rules
@@ -93,6 +93,7 @@ jobs:
         run: pip install --upgrade platformio
       - name: Build on AVR, USB-native AVR, ESP32 and ESP8266
         run: >
+          bash extras/tools/annotate_on_fail.sh
           pio ci --lib="."
           --board=uno
           --board=leonardo
