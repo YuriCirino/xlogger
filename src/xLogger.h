@@ -46,19 +46,34 @@ public:
   void setTimestamp(bool on) { timestamp_ = on; }  // prefix with millis()
   void setTag(const char *tag) { tag_ = tag; }      // e.g. "IMU" -> [D][IMU]
 
+  // True if the level is compiled in (XLOGGER_MAX_LEVEL) AND enabled at runtime.
   bool enabled(XLogLevel l) const {
     return l != XLogLevel::None &&
+           static_cast<uint8_t>(l) <= XLOGGER_MAX_LEVEL &&
            static_cast<uint8_t>(l) <= static_cast<uint8_t>(level_);
   }
 
   // ---- logging ----------------------------------------------------------
   // Each call prints "[X] arg1arg2...\n". Arguments go straight to
   // Print::print(), so no String concatenation and F() strings stay in flash:
-  //   log.debug(F("adc="), adc, F(" v="), v);
-  template <typename... Args> void error(const Args &...args) { log(XLogLevel::Error, 'E', args...); }
-  template <typename... Args> void warn(const Args &...args)  { log(XLogLevel::Warn,  'W', args...); }
-  template <typename... Args> void info(const Args &...args)  { log(XLogLevel::Info,  'I', args...); }
-  template <typename... Args> void debug(const Args &...args) { log(XLogLevel::Debug, 'D', args...); }
+  //   logger.debug(F("adc="), adc, F(" v="), v);
+  //
+  // Levels above XLOGGER_MAX_LEVEL compile to an empty inline call: the
+  // optimizer removes the code and the F() strings from the firmware.
+  // Unlike the XLOG_* macros, the arguments are still evaluated, so a call
+  // like logger.debug(readSensor()) behaves the same in debug and release.
+  template <typename... Args> void error(const Args &...args) {
+    if (XLOGGER_MAX_LEVEL >= XLOG_LEVEL_ERROR) log(XLogLevel::Error, 'E', args...);
+  }
+  template <typename... Args> void warn(const Args &...args) {
+    if (XLOGGER_MAX_LEVEL >= XLOG_LEVEL_WARN) log(XLogLevel::Warn, 'W', args...);
+  }
+  template <typename... Args> void info(const Args &...args) {
+    if (XLOGGER_MAX_LEVEL >= XLOG_LEVEL_INFO) log(XLogLevel::Info, 'I', args...);
+  }
+  template <typename... Args> void debug(const Args &...args) {
+    if (XLOGGER_MAX_LEVEL >= XLOG_LEVEL_DEBUG) log(XLogLevel::Debug, 'D', args...);
+  }
 
   // Prints the caller's function and line. Use it through XLOG_HERE(logger),
   // which captures __func__ and __LINE__ at the call site.

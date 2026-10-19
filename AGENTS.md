@@ -16,8 +16,10 @@ firmware that *uses* xLogger, read [`skills/xlogger/SKILL.md`](skills/xlogger/SK
 
 ```bash
 # unit tests
-g++ -std=gnu++11 -Wall -Wextra -Werror -I extras/test -I src \
-    extras/test/test_xlogger.cpp -o extras/test/test_xlogger && ./extras/test/test_xlogger
+sh extras/test/run.sh
+
+# prove disabled levels leave no strings in a real firmware (needs PlatformIO Core and network)
+bash extras/test/strip/check_strip.sh uno
 
 # AI docs: regenerate, then verify snippets compile and llms-full.txt is in sync
 python3 extras/tools/ai_docs.py build
@@ -35,7 +37,11 @@ pio ci --lib="." --board=uno examples/Basic/Basic.ino
 - Do not break the public API in a minor release (Semantic Versioning).
 - When the public API changes, update **all** of: `README.md`, `docs/GUIA-pt-BR.md`,
   `skills/xlogger/SKILL.md` (then `ai_docs.py build`), `CHANGELOG.md` (under `Unreleased`),
-  and add a test in `extras/test/test_xlogger.cpp`.
+  and add a test in `extras/test/test_xlogger.cpp` (or `test_max_level.cpp` for
+  compile-time behavior).
+- `logger.xxx()` methods and `XLOG_*` macros must stay equivalent in output. Methods
+  above `XLOGGER_MAX_LEVEL` compile to nothing but still evaluate their arguments;
+  macros above it do not evaluate them.
 - Version lives in four places that must match: `library.json`, `library.properties`,
   `XLOGGER_VERSION` in `src/xLogger.h`, and `metadata.version` in `SKILL.md`
   (`python3 extras/tools/check_version.py` verifies). Releases are published by

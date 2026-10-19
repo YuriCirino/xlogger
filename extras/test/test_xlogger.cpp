@@ -1,29 +1,7 @@
-// Host unit tests for xLogger.
-// From the repository root:
-//   g++ -std=gnu++11 -Wall -Wextra -Werror -I extras/test -I src
-//       extras/test/test_xlogger.cpp -o extras/test/test_xlogger
-//   ./extras/test/test_xlogger
-#define XLOGGER_MAX_LEVEL XLOG_LEVEL_INFO  // DEBUG is compiled out in this file
+// Host unit tests for xLogger with every level compiled in (default).
+// Run all host tests from the repository root with: extras/test/run.sh
 #include "xLogger.h"
-
-#include <cstdlib>
-#include <cstring>
-
-static int failures = 0;
-
-#define CHECK_EQ(actual, expected)                                            \
-  do {                                                                        \
-    std::string a_ = (actual), e_ = (expected);                               \
-    if (a_ != e_) {                                                           \
-      failures++;                                                             \
-      printf("FAIL %s:%d\n  expected: \"%s\"\n  actual:   \"%s\"\n", __FILE__, \
-             __LINE__, e_.c_str(), a_.c_str());                               \
-    }                                                                         \
-  } while (0)
-
-static int sideEffects = 0;
-// Only referenced inside a compiled-out macro, hence "unused".
-__attribute__((unused)) static int touch() { return ++sideEffects; }
+#include "test_common.h"
 
 static void testFormattingAndTypes() {
   Print p;
@@ -47,17 +25,13 @@ static void testRuntimeLevels() {
   CHECK_EQ(p.buf, "");
 }
 
-static void testCompileTimeStrip() {
-  Print p;
-  XLogger log(p, XLogLevel::Debug);
-  XLOG_DEBUG(log, "gone ", touch());  // compiled out: touch() never runs
-  XLOG_HERE(log);                     // compiled out too
-  XLOG_INFO(log, "kept");
-  CHECK_EQ(p.buf, "[I] kept\r\n");
-  if (sideEffects != 0) {
-    failures++;
-    printf("FAIL: disabled macro evaluated its arguments\n");
-  }
+static void testMethodsAndMacrosPrintTheSame() {
+  Print a, b;
+  XLogger viaMethod(a), viaMacro(b);
+  viaMethod.debug(F("x="), 1);
+  XLOG_DEBUG(viaMacro, F("x="), 1);
+  CHECK_EQ(a.buf, "[D] x=1\r\n");
+  CHECK_EQ(b.buf, a.buf);
 }
 
 static void testTimestampAndTag() {
@@ -87,6 +61,15 @@ static void testSetOutput() {
   CHECK_EQ(b.buf, "[I] to b\r\n");
 }
 
+static void testEnabled() {
+  Print p;
+  XLogger log(p, XLogLevel::Info);
+  CHECK(log.enabled(XLogLevel::Error), "Error should be enabled at Info");
+  CHECK(log.enabled(XLogLevel::Info), "Info should be enabled at Info");
+  CHECK(!log.enabled(XLogLevel::Debug), "Debug should be off at Info");
+  CHECK(!log.enabled(XLogLevel::None), "None is never 'enabled'");
+}
+
 static void testCompatApi() {
   Print p;
   XLogger log(p, XLogLevel::None);
@@ -100,16 +83,11 @@ static void testCompatApi() {
 int main() {
   testFormattingAndTypes();
   testRuntimeLevels();
-  testCompileTimeStrip();
+  testMethodsAndMacrosPrintTheSame();
   testTimestampAndTag();
   testHere();
   testSetOutput();
+  testEnabled();
   testCompatApi();
-
-  if (failures) {
-    printf("%d check(s) failed\n", failures);
-    return EXIT_FAILURE;
-  }
-  printf("All tests passed\n");
-  return EXIT_SUCCESS;
+  return finish("all levels compiled in");
 }

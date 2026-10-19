@@ -14,10 +14,32 @@ jobs:
       - name: Version matches in every file
         run: python3 extras/tools/check_version.py
       - name: Build and run
-        run: |
-          g++ -std=gnu++11 -Wall -Wextra -Werror -I extras/test -I src \
-              extras/test/test_xlogger.cpp -o extras/test/test_xlogger
-          ./extras/test/test_xlogger
+        run: sh extras/test/run.sh
+
+  firmware-strip:
+    name: Disabled levels removed from firmware (${{ matrix.board }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        board: [uno, esp32dev]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+            ~/.platformio/packages
+            ~/.platformio/platforms
+          key: pio-strip-${{ runner.os }}-${{ matrix.board }}-${{ hashFiles('.github/workflows/ci.yml') }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install PlatformIO
+        run: pip install --upgrade platformio
+      - name: Build at levels 4 and 2 and inspect the ELF
+        run: bash extras/test/strip/check_strip.sh ${{ matrix.board }}
 
   arduino-lint:
     name: Arduino Library Manager rules

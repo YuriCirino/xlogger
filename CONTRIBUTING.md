@@ -36,10 +36,12 @@ The unit tests run on your computer with a mock of the Arduino `Print` class, no
 From the repository root:
 
 ```bash
-g++ -std=gnu++11 -Wall -Wextra -Werror -I extras/test -I src \
-    extras/test/test_xlogger.cpp -o extras/test/test_xlogger
-./extras/test/test_xlogger
+sh extras/test/run.sh
 ```
+
+`test_xlogger.cpp` runs with every level compiled in; `test_max_level.cpp` checks the
+compile-time removal. CI also builds `extras/test/strip/strip.ino` for real boards and
+checks that disabled strings are absent from the firmware.
 
 To build the examples for real boards locally (requires [PlatformIO Core](https://docs.platformio.org/en/latest/core/installation/index.html)):
 
@@ -57,7 +59,7 @@ pio ci --lib="." --board=uno --board=esp32dev examples/Basic/Basic.ino
   when compiled out and must not evaluate their arguments.
 - **Don't break the public API** in a minor release (see [Semantic Versioning](https://semver.org/)).
 - Follow the existing style: 2-space indent, `camelCase` methods, trailing `_` on private members.
-- Add a test in `extras/test/test_xlogger.cpp` for new behavior.
+- Add a test in `extras/test/` for new behavior.
 - Update `README.md` **and** `docs/GUIA-pt-BR.md` when the public API changes
   (if you don't write Portuguese, say so in the PR and the maintainer will translate).
 - Update the AI reference in `skills/xlogger/SKILL.md` too, then regenerate and check it:
