@@ -12,13 +12,18 @@ fail=0
 build() {  # build with the given max level, print "MARKER section flash|debug" lines
   local level="$1"
   local dir="$work/l$level"
-  pio ci --lib="." --board="$board" --keep-build-dir --build-dir="$dir" \
+  pio ci -v --lib="." --board="$board" --keep-build-dir --build-dir="$dir" \
     --project-option="build_flags=-D XLOGGER_MAX_LEVEL=$level" \
     extras/test/strip/strip.ino > "$dir.log" 2>&1 || { cat "$dir.log"; exit 1; }
+  # show the optimization/debug flags used for the sketch itself
+  { grep -E 'strip\.ino' "$dir.log" | grep -m1 -E -- ' -c ' || true; } | tr ' ' '\n' \
+    | grep -xE -- '-(O[0-9sgz]?|g[0-9a-z]*|f(no-)?inline[a-z-]*|flto.*)' | sort -u | tr '\n' ' ' \
+    | sed "s/^/flags for $board: /" >&2 || true
+  echo >&2
   python3 "$here/find_markers.py" "$dir/.pio/build/$board/firmware.elf"
 }
 
-all="$(build 4)"
+all="$(build 4)"  # flags go to stderr
 release="$(build 2)"
 echo "== $board, XLOGGER_MAX_LEVEL=4 (marker, ELF section, flash|debug):"; echo "$all"
 echo "== $board, XLOGGER_MAX_LEVEL=2:"; echo "$release"
