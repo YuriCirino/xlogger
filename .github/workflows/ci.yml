@@ -10,7 +10,7 @@ jobs:
     name: Host unit tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Version matches in every file
         run: python3 extras/tools/check_version.py
       - name: Build and run
@@ -23,7 +23,7 @@ jobs:
     name: Arduino Library Manager rules
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: arduino/arduino-lint-action@v2
         with:
           library-manager: submit
@@ -33,8 +33,8 @@ jobs:
     name: AI reference (snippets compile, llms-full.txt in sync)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Check AI docs
@@ -55,7 +55,7 @@ jobs:
           - examples/LevelsAndTags/LevelsAndTags.ino
           - examples/CompileTimeStrip/CompileTimeStrip.ino
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/cache@v4
         with:
           path: |
@@ -64,7 +64,7 @@ jobs:
             ~/.platformio/packages
             ~/.platformio/platforms
           key: pio-${{ runner.os }}-${{ hashFiles('.github/workflows/ci.yml') }}
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Install PlatformIO
