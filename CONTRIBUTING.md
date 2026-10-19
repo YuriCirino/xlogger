@@ -60,6 +60,10 @@ pio ci --lib="." --board=uno --board=esp32dev examples/Basic/Basic.ino
 - Add a test in `extras/test/test_xlogger.cpp` for new behavior.
 - Update `README.md` **and** `docs/GUIA-pt-BR.md` when the public API changes
   (if you don't write Portuguese, say so in the PR and the maintainer will translate).
+- Update the AI reference in `skills/xlogger/SKILL.md` too, then regenerate and check it:
+  `python3 extras/tools/ai_docs.py build && python3 extras/tools/ai_docs.py check`.
+  Code blocks fenced as ` ```cpp ` must be complete, compilable sketches (CI checks them);
+  use ` ```c++ ` for fragments and anti-patterns. Never edit `llms-full.txt` by hand.
 - Add a line under `## [Unreleased]` in `CHANGELOG.md`.
 
 ### Commit messages

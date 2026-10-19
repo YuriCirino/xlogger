@@ -1,0 +1,23 @@
+# xLogger
+
+> Header-only, leveled logger for Arduino and PlatformIO (C++11; AVR, ESP32, ESP8266, RP2040, SAMD). Log with the XLOG_ERROR/WARN/INFO/DEBUG/HERE macros, passing values as comma-separated arguments (no String concatenation, F() for literals). Disabled levels are removed at compile time with the XLOGGER_MAX_LEVEL build flag, so macro arguments must have no side effects.
+
+## Docs
+
+- [Complete AI reference](https://raw.githubusercontent.com/YuriCirino/xlogger/main/llms-full.txt): rules, API, patterns and anti-patterns in one file. Read this before writing code with xLogger.
+- [README](https://raw.githubusercontent.com/YuriCirino/xlogger/main/README.md): overview, installation and API table.
+- [Agent Skill](https://raw.githubusercontent.com/YuriCirino/xlogger/main/skills/xlogger/SKILL.md): same reference packaged as an Agent Skill (SKILL.md).
+- [Library header](https://raw.githubusercontent.com/YuriCirino/xlogger/main/src/xLogger.h): the full source, about 150 lines.
+
+## Examples
+
+- [Basic](https://raw.githubusercontent.com/YuriCirino/xlogger/main/examples/Basic/Basic.ino): all levels, mixed argument types, XLOG_HERE.
+- [LevelsAndTags](https://raw.githubusercontent.com/YuriCirino/xlogger/main/examples/LevelsAndTags/LevelsAndTags.ino): runtime level changes, tags, timestamps, one logger per module.
+- [CompileTimeStrip](https://raw.githubusercontent.com/YuriCirino/xlogger/main/examples/CompileTimeStrip/CompileTimeStrip.ino): release build without debug/info.
+- [PlatformIO project](https://raw.githubusercontent.com/YuriCirino/xlogger/main/extras/platformio-example/platformio.ini): debug and release environments.
+
+## Optional
+
+- [Guia em português](https://raw.githubusercontent.com/YuriCirino/xlogger/main/docs/GUIA-pt-BR.md): step-by-step guide in Portuguese.
+- [Changelog](https://raw.githubusercontent.com/YuriCirino/xlogger/main/CHANGELOG.md)
+- [Contributing](https://raw.githubusercontent.com/YuriCirino/xlogger/main/CONTRIBUTING.md)

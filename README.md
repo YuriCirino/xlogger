@@ -125,6 +125,27 @@ and only affects that file.
 - Each `XLogger` costs a few bytes of RAM (pointer, level, flags, tag pointer).
 - Messages are not thread-safe on multi-core targets: lines from different tasks may interleave.
 
+## Using xLogger with AI assistants
+
+AI models don't know xLogger out of the box and tend to fall back to `Serial.print` and
+`String`. The repository ships a reference written for them — rules, full API, patterns and
+anti-patterns — and CI compiles every code example in it.
+
+| Option | Works with | How |
+|---|---|---|
+| **Attach a file** | Any chat AI | Download [`llms-full.txt`](https://raw.githubusercontent.com/YuriCirino/xlogger/main/llms-full.txt) and attach it to your request, or paste the URL if your AI can browse |
+| **Agent Skill** | Claude, Copilot, Cursor, Codex, Gemini CLI and [others](https://agentskills.io/) | Copy [`skills/xlogger`](skills/xlogger) into your tool's skills folder (e.g. `.claude/skills/xlogger/` for Claude Code). The agent loads it automatically when your project uses xLogger |
+| **Already in your project** | Coding agents in PlatformIO projects | The file comes with the library: ask the agent to read `.pio/libdeps/<env>/xLogger/llms-full.txt` |
+
+Example prompt:
+
+> Using the xLogger library as described in the attached file, add logging to this ESP32
+> firmware: debug logs for sensor readings, error logs for Wi-Fi failures, and a
+> `platformio.ini` with debug and release environments.
+
+The repository also has an [`llms.txt`](llms.txt) index and an [`AGENTS.md`](AGENTS.md)
+for agents contributing to xLogger itself.
+
 ## Feedback, bugs and contributing
 
 Suggestions and bug reports are very welcome, in English or Portuguese.

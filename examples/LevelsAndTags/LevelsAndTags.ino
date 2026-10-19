@@ -7,7 +7,7 @@ XLogger motorLog(Serial);
 
 void setup() {
   Serial.begin(115200);
-  while (!Serial) {}
+  while (!Serial && millis() < 3000) {}
 
   sensorLog.setTag("SENSOR");
   motorLog.setTag("MOTOR");

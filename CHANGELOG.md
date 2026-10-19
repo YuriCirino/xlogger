@@ -10,6 +10,12 @@ uses [Semantic Versioning](https://semver.org/).
 - Issue forms (bug report, feature request, question), pull request template.
 - `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` and `SECURITY.md`.
 - Clearer link to the Portuguese guide; feedback section in README and guide.
+- AI assistant support: Agent Skill (`skills/xlogger/SKILL.md`), generated `llms-full.txt`,
+  `llms.txt` index and `AGENTS.md`. CI compiles every snippet of the AI reference.
+
+### Fixed
+- Examples no longer hang on native-USB boards running without a PC
+  (`while (!Serial)` now has a 3 s timeout).
 
 ## [1.0.0] - 2026-10-19
 

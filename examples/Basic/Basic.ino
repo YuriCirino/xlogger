@@ -5,7 +5,7 @@ XLogger logger(Serial);
 
 void setup() {
   Serial.begin(115200);
-  while (!Serial) {}  // wait for USB CDC boards (Leonardo, ESP32-S3...)
+  while (!Serial && millis() < 3000) {}  // USB boards: wait up to 3 s for the PC
 
   XLOG_INFO(logger, F("xLogger "), XLOGGER_VERSION, F(" ready"));
 }

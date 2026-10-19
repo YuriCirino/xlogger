@@ -17,6 +17,21 @@ jobs:
               extras/test/test_xlogger.cpp -o extras/test/test_xlogger
           ./extras/test/test_xlogger
 
+  ai-docs:
+    name: AI reference (snippets compile, llms-full.txt in sync)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check AI docs
+        run: python3 extras/tools/ai_docs.py check
+      - name: Validate Agent Skill
+        run: |
+          pip install skills-ref
+          python3 -c "import pathlib, sys, skills_ref; e = skills_ref.validate(pathlib.Path('skills/xlogger')); print(e or 'skill ok'); sys.exit(1 if e else 0)"
+
   build-examples:
     name: ${{ matrix.example }}
     runs-on: ubuntu-latest

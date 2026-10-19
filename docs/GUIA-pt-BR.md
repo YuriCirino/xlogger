@@ -14,8 +14,9 @@ da versão final sem precisar comentar nenhuma linha.
 - [7. Recursos extras](#7-recursos-extras)
 - [8. Migrando da classe `Logger` antiga](#8-migrando-da-classe-logger-antiga)
 - [9. Problemas comuns](#9-problemas-comuns)
-- [10. Sugestões, dúvidas e bugs](#10-sugestões-dúvidas-e-bugs)
-- [11. Para o mantenedor: publicando uma nova versão](#11-para-o-mantenedor-publicando-uma-nova-versão)
+- [10. Usando com IA (ChatGPT, Claude, Gemini, Copilot…)](#10-usando-com-ia-chatgpt-claude-gemini-copilot)
+- [11. Sugestões, dúvidas e bugs](#11-sugestões-dúvidas-e-bugs)
+- [12. Para o mantenedor: publicando uma nova versão](#12-para-o-mantenedor-publicando-uma-nova-versão)
 
 ---
 
@@ -226,8 +227,10 @@ mesmo `[env:...]` que você está compilando (ou em `[env]`, que vale para todos
 
 **Nada aparece no monitor serial**
 - O `monitor_speed` precisa ser igual ao `Serial.begin(...)`.
-- Em placas com USB nativo (Leonardo, ESP32-S3, RP2040), espere a porta abrir:
-  `while (!Serial) {}` no `setup()`.
+- Em placas com USB nativo (Leonardo, ESP32-S3, RP2040), as primeiras mensagens saem
+  antes de o PC abrir a porta. Espere com um limite de tempo no `setup()`:
+  `while (!Serial && millis() < 3000) {}`. Sem o limite (`while (!Serial) {}`), a placa
+  trava para sempre quando roda sem computador conectado.
 - Confira se o nível do logger e o `XLOGGER_MAX_LEVEL` permitem a mensagem.
 
 **`call of overloaded 'print(long long ...)' is ambiguous` no AVR**
@@ -240,7 +243,45 @@ Use `build_flags` no `platformio.ini` para valer no projeto inteiro.
 **Mudei `build_flags` e o comportamento não mudou**
 Faça um *Clean* (🗑 na barra inferior, ou `pio run -t clean`) e compile de novo.
 
-## 10. Sugestões, dúvidas e bugs
+## 10. Usando com IA (ChatGPT, Claude, Gemini, Copilot…)
+
+Uma IA não conhece o xLogger de antemão. Sem contexto, ela tende a inventar funções ou
+voltar para o `Serial.print()` com `String`. Por isso a biblioteca traz uma referência
+escrita para IA: regras, API completa, padrões e erros comuns, com todos os exemplos
+compilados automaticamente no CI. Há três formas de usar, da mais simples à mais integrada.
+
+### Opção 1 — Anexar um arquivo no chat (funciona em qualquer IA)
+
+1. Baixe o **[llms-full.txt](https://raw.githubusercontent.com/YuriCirino/xlogger/main/llms-full.txt)**
+   (botão direito → *Salvar link como…*).
+2. Anexe o arquivo na conversa e faça o pedido. Exemplo:
+
+   > Use a biblioteca xLogger, conforme o arquivo anexo, para adicionar logs a este
+   > firmware de ESP32. Quero logs de debug nas leituras do sensor e de erro nas falhas de
+   > Wi-Fi, e um `platformio.ini` com ambientes de debug e de release.
+
+Se a sua IA consegue abrir links, basta colar a URL do arquivo no lugar de anexar.
+
+### Opção 2 — Agent Skill (Claude, Copilot, Cursor, Codex, Gemini CLI…)
+
+O mesmo conteúdo está empacotado como **Agent Skill**, um formato aberto que vários
+assistentes de código carregam sozinhos quando percebem que o projeto usa o xLogger, sem
+você precisar anexar nada a cada pedido.
+
+Copie a pasta [`skills/xlogger`](../skills/xlogger) do repositório para a pasta de skills da
+sua ferramenta. No Claude Code, por exemplo, ela vai em `.claude/skills/xlogger/` dentro do
+seu projeto. Para as outras ferramentas, veja a lista de compatíveis em
+[agentskills.io](https://agentskills.io/).
+
+### Opção 3 — O arquivo já está no seu projeto PlatformIO
+
+Quando o PlatformIO baixa a biblioteca, o `llms-full.txt` vem junto, em
+`.pio/libdeps/<ambiente>/xLogger/`. Um agente que trabalha dentro do seu projeto pode
+lê-lo direto. Basta pedir:
+
+> Antes de mexer nos logs, leia `.pio/libdeps/debug/xLogger/llms-full.txt`.
+
+## 11. Sugestões, dúvidas e bugs
 
 Sua opinião ajuda a melhorar a biblioteca. Pode escrever em português ou em inglês.
 
@@ -256,11 +297,13 @@ informações novas. Todas as interações seguem o [Código de Conduta](../CODE
 
 Você precisa de uma conta gratuita no GitHub para abrir issues.
 
-## 11. Para o mantenedor: publicando uma nova versão
+## 12. Para o mantenedor: publicando uma nova versão
 
-1. Atualize a versão em **três** lugares: `library.json`, `library.properties` e
-   `XLOGGER_VERSION` em `src/xLogger.h`.
-2. Registre as mudanças em `CHANGELOG.md`.
+1. Atualize a versão em **quatro** lugares: `library.json`, `library.properties`,
+   `XLOGGER_VERSION` em `src/xLogger.h` e `metadata.version` em `skills/xlogger/SKILL.md`.
+2. Se a API mudou, atualize o `SKILL.md` e regenere a referência para IA com
+   `python3 extras/tools/ai_docs.py build` (nunca edite o `llms-full.txt` à mão).
+   Registre as mudanças em `CHANGELOG.md`.
 3. Commit, tag e push:
 
    ```bash
