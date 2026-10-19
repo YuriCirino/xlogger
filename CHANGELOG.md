@@ -6,6 +6,11 @@ uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- Leaner repository: AI files moved to `ai/` (`ai/llms-full.txt`, `ai/llms.txt`,
+  `ai/skills/xlogger/`); removed `AGENTS.md`, `SECURITY.md`, the question issue form and
+  the PlatformIO publish workflow. Simpler README and guide navigation.
+
 ## [1.2.0] - 2026-10-19
 
 ### Changed

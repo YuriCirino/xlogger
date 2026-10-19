@@ -21,7 +21,7 @@ versions = {
     "library.json": json.loads((ROOT / "library.json").read_text())["version"],
     "library.properties": grab("library.properties", r"^version=(\S+)$"),
     "src/xLogger.h": grab("src/xLogger.h", r'#define XLOGGER_VERSION "([^"]+)"'),
-    "skills/xlogger/SKILL.md": grab("skills/xlogger/SKILL.md", r'^\s+version:\s*"([^"]+)"'),
+    "ai/skills/xlogger/SKILL.md": grab("ai/skills/xlogger/SKILL.md", r'^\s+version:\s*"([^"]+)"'),
 }
 
 for name, v in versions.items():

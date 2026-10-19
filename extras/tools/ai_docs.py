@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Keep the AI-facing documentation correct.
 
-skills/xlogger/SKILL.md is the single source of truth. This script:
+ai/skills/xlogger/SKILL.md is the single source of truth. This script:
 
-  build  - regenerates llms-full.txt from SKILL.md
+  build  - regenerates ai/llms-full.txt from SKILL.md
   check  - fails if llms-full.txt is out of date, or if any ```cpp block in
            SKILL.md does not compile against the host mock (extras/test).
            Blocks fenced as ```c++ are fragments/anti-patterns and are skipped.
@@ -19,8 +19,8 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-SKILL = ROOT / "skills" / "xlogger" / "SKILL.md"
-FULL = ROOT / "llms-full.txt"
+SKILL = ROOT / "ai" / "skills" / "xlogger" / "SKILL.md"
+FULL = ROOT / "ai" / "llms-full.txt"
 HEADER_FILE = ROOT / "src" / "xLogger.h"
 
 
@@ -46,7 +46,7 @@ def render_full():
         f"<!-- xLogger {lib_version()} - complete reference for AI coding assistants.\n"
         "     Attach this file to your chat, or point your AI to its URL, when asking\n"
         "     for Arduino/PlatformIO code that uses xLogger.\n"
-        "     GENERATED from skills/xlogger/SKILL.md - do not edit by hand. -->\n\n"
+        "     GENERATED from ai/skills/xlogger/SKILL.md - do not edit by hand. -->\n\n"
     )
     return header + body
 

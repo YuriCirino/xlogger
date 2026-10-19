@@ -14,16 +14,10 @@ turned off without commenting lines and removed entirely from the final firmware
 
 ## Contents
 
-| | |
-|---|---|
-| 🚀 [Quick start](#quick-start) | Install and print your first log in 1 minute |
-| ⚖️ [Two ways to log](#two-ways-to-log-loggerinfo-or-xlog_info) | `logger.info()` vs `XLOG_INFO()` — which one to use |
-| 📶 [Levels](#levels) | error, warn, info, debug |
-| 🔧 [Debug and release builds](#debug-and-release-builds) | Remove logs from the final firmware |
-| 📖 [API reference](#api-reference) | Every method and option |
-| 💡 [Examples](#examples) | Ready-to-run sketches |
-| 🤖 [Using with AI assistants](#using-with-ai-assistants) | Make ChatGPT, Claude, Copilot… write correct xLogger code |
-| 🐛 [Feedback and bugs](#feedback-bugs-and-contributing) | Report a problem or suggest an idea |
+- [Quick start](#quick-start) — install and print your first log
+- [Two ways to log](#two-ways-to-log-loggerinfo-or-xlog_info) — `logger.info()` or `XLOG_INFO()`
+- [Levels](#levels) · [Debug and release builds](#debug-and-release-builds) · [API reference](#api-reference) · [Examples](#examples)
+- [Using with AI assistants](#using-with-ai-assistants) · [Feedback and bugs](#feedback-bugs-and-contributing)
 
 ## Quick start
 
@@ -187,32 +181,17 @@ Without PlatformIO, `#define XLOGGER_MAX_LEVEL XLOG_LEVEL_WARN` **before**
 
 ## Using with AI assistants
 
-AI models don't know xLogger out of the box and tend to fall back to `Serial.print` and
-`String`. This repository ships a reference written for them — rules, full API, patterns and
-common mistakes — and CI compiles every code example in it.
-
-| Option | Works with | How |
-|---|---|---|
-| **Attach a file** | Any chat AI | Download [`llms-full.txt`](https://raw.githubusercontent.com/YuriCirino/xlogger/main/llms-full.txt) and attach it to your request, or paste the URL if your AI can browse |
-| **Agent Skill** | Claude, Copilot, Cursor, Codex, Gemini CLI and [others](https://agentskills.io/) | Copy [`skills/xlogger`](skills/xlogger) into your tool's skills folder (e.g. `.claude/skills/xlogger/` for Claude Code). The agent loads it when your project uses xLogger |
-| **Already in your project** | Coding agents in PlatformIO projects | The file comes with the library: ask the agent to read `.pio/libdeps/<env>/xLogger/llms-full.txt` |
-
-Example prompt:
-
-> Using the xLogger library as described in the attached file, add logging to this ESP32
-> firmware: debug logs for sensor readings, error logs for Wi-Fi failures, and a
-> `platformio.ini` with debug and release environments.
-
-The repository also has an [`llms.txt`](llms.txt) index and an [`AGENTS.md`](AGENTS.md)
-for agents contributing to xLogger itself.
+AI models don't know xLogger and tend to fall back to `Serial.print` and `String`. The
+[`ai/`](ai) folder has a reference to attach to your request, and an Agent Skill for coding
+agents — see [ai/README.md](ai/README.md).
 
 ## Feedback, bugs and contributing
 
 Suggestions and bug reports are very welcome, in English or Portuguese.
 
-- 🐛 **Found a bug?** [Open a bug report](https://github.com/YuriCirino/xlogger/issues/new?template=bug_report.yml)
-- 💡 **Have an idea?** [Suggest a feature](https://github.com/YuriCirino/xlogger/issues/new?template=feature_request.yml)
-- 🔀 **Want to contribute code?** Read [CONTRIBUTING.md](CONTRIBUTING.md) and open a pull request.
+- **Found a bug?** [Open a bug report](https://github.com/YuriCirino/xlogger/issues/new?template=bug_report.yml)
+- **Have an idea?** [Suggest a feature](https://github.com/YuriCirino/xlogger/issues/new?template=feature_request.yml)
+- **Want to contribute code?** Read [CONTRIBUTING.md](CONTRIBUTING.md) and open a pull request.
 
 Please search the [existing issues](https://github.com/YuriCirino/xlogger/issues) first,
 and follow the [Code of Conduct](CODE_OF_CONDUCT.md).

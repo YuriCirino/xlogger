@@ -70,7 +70,7 @@ jobs:
       - name: Validate Agent Skill
         run: |
           pip install skills-ref
-          python3 -c "import pathlib, sys, skills_ref; e = skills_ref.validate(pathlib.Path('skills/xlogger')); print(e or 'skill ok'); sys.exit(1 if e else 0)"
+          python3 -c "import pathlib, sys, skills_ref; e = skills_ref.validate(pathlib.Path('ai/skills/xlogger')); print(e or 'skill ok'); sys.exit(1 if e else 0)"
 
   build-examples:
     name: ${{ matrix.example }}

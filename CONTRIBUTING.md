@@ -62,16 +62,25 @@ pio ci --lib="." --board=uno --board=esp32dev examples/Basic/Basic.ino
 - Add a test in `extras/test/` for new behavior.
 - Update `README.md` **and** `docs/GUIA-pt-BR.md` when the public API changes
   (if you don't write Portuguese, say so in the PR and the maintainer will translate).
-- Update the AI reference in `skills/xlogger/SKILL.md` too, then regenerate and check it:
+- Update the AI reference in `ai/skills/xlogger/SKILL.md` too, then regenerate and check it:
   `python3 extras/tools/ai_docs.py build && python3 extras/tools/ai_docs.py check`.
   Code blocks fenced as ` ```cpp ` must be complete, compilable sketches (CI checks them);
-  use ` ```c++ ` for fragments and anti-patterns. Never edit `llms-full.txt` by hand.
+  use ` ```c++ ` for fragments and anti-patterns. Never edit `ai/llms-full.txt` by hand.
 - Add a line under `## [Unreleased]` in `CHANGELOG.md`.
 
 ### Commit messages
 
 Short imperative summary (≤ 72 characters), e.g. `Add color output option` or
 `Fix timestamp on ESP8266`, followed by a blank line and details if needed.
+
+## Releasing (maintainer)
+
+1. Set the new version in `library.json`, `library.properties`, `XLOGGER_VERSION` in
+   `src/xLogger.h` and `metadata.version` in `ai/skills/xlogger/SKILL.md`, and update the
+   `#vX.Y.Z` in the install snippets. Check with `python3 extras/tools/check_version.py`.
+2. Run `python3 extras/tools/ai_docs.py build`.
+3. In `CHANGELOG.md`, turn `[Unreleased]` into `[X.Y.Z] - date` and update the links at the end.
+4. Push to `main`, wait for green CI, then create a GitHub Release with tag `vX.Y.Z`.
 
 ## Code of Conduct
 

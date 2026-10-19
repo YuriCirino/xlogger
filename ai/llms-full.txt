@@ -1,7 +1,7 @@
 <!-- xLogger 1.2.0 - complete reference for AI coding assistants.
      Attach this file to your chat, or point your AI to its URL, when asking
      for Arduino/PlatformIO code that uses xLogger.
-     GENERATED from skills/xlogger/SKILL.md - do not edit by hand. -->
+     GENERATED from ai/skills/xlogger/SKILL.md - do not edit by hand. -->
 
 # xLogger — reference for AI assistants
 
