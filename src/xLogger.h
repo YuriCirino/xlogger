@@ -21,6 +21,14 @@
 #define XLOGGER_MAX_LEVEL XLOG_LEVEL_DEBUG
 #endif
 
+// Disabled methods must be expanded at the call site so the compiler can drop
+// their arguments (and F() strings) together with the dead call.
+#if defined(__GNUC__)
+#define XLOGGER_ALWAYS_INLINE inline __attribute__((always_inline))
+#else
+#define XLOGGER_ALWAYS_INLINE inline
+#endif
+
 enum class XLogLevel : uint8_t {
   None = XLOG_LEVEL_NONE,
   Error = XLOG_LEVEL_ERROR,
@@ -62,16 +70,16 @@ public:
   // optimizer removes the code and the F() strings from the firmware.
   // Unlike the XLOG_* macros, the arguments are still evaluated, so a call
   // like logger.debug(readSensor()) behaves the same in debug and release.
-  template <typename... Args> void error(const Args &...args) {
+  template <typename... Args> XLOGGER_ALWAYS_INLINE void error(const Args &...args) {
     if (XLOGGER_MAX_LEVEL >= XLOG_LEVEL_ERROR) log(XLogLevel::Error, 'E', args...);
   }
-  template <typename... Args> void warn(const Args &...args) {
+  template <typename... Args> XLOGGER_ALWAYS_INLINE void warn(const Args &...args) {
     if (XLOGGER_MAX_LEVEL >= XLOG_LEVEL_WARN) log(XLogLevel::Warn, 'W', args...);
   }
-  template <typename... Args> void info(const Args &...args) {
+  template <typename... Args> XLOGGER_ALWAYS_INLINE void info(const Args &...args) {
     if (XLOGGER_MAX_LEVEL >= XLOG_LEVEL_INFO) log(XLogLevel::Info, 'I', args...);
   }
-  template <typename... Args> void debug(const Args &...args) {
+  template <typename... Args> XLOGGER_ALWAYS_INLINE void debug(const Args &...args) {
     if (XLOGGER_MAX_LEVEL >= XLOG_LEVEL_DEBUG) log(XLogLevel::Debug, 'D', args...);
   }
 
