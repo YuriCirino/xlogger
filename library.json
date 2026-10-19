@@ -1,0 +1,28 @@
+{
+  "name": "xLogger",
+  "version": "1.0.0",
+  "description": "Lightweight leveled logger for Arduino/PlatformIO. Variadic printing without String, F() support, caller line/function, timestamps, and compile-time removal of disabled levels.",
+  "keywords": "logging, logger, log, debug, serial, print",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YuriCirino/xlogger.git"
+  },
+  "authors": [
+    {
+      "name": "Yuri Cirino",
+      "url": "https://github.com/YuriCirino",
+      "maintainer": true
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/YuriCirino/xlogger",
+  "frameworks": "arduino",
+  "platforms": "*",
+  "headers": "xLogger.h",
+  "export": {
+    "exclude": [
+      ".github",
+      "extras/test"
+    ]
+  }
+}

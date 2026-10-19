@@ -1,0 +1,5 @@
+.pio/
+.vscode/
+build/
+*.o
+extras/test/test_xlogger

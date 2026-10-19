@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  unit-tests:
+    name: Host unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and run
+        run: |
+          g++ -std=gnu++11 -Wall -Wextra -Werror -I extras/test -I src \
+              extras/test/test_xlogger.cpp -o extras/test/test_xlogger
+          ./extras/test/test_xlogger
+
+  build-examples:
+    name: ${{ matrix.example }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        example:
+          - examples/Basic/Basic.ino
+          - examples/LevelsAndTags/LevelsAndTags.ino
+          - examples/CompileTimeStrip/CompileTimeStrip.ino
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+            ~/.platformio/packages
+            ~/.platformio/platforms
+          key: pio-${{ runner.os }}-${{ hashFiles('.github/workflows/ci.yml') }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install PlatformIO
+        run: pip install --upgrade platformio
+      - name: Build on AVR, USB-native AVR, ESP32 and ESP8266
+        run: >
+          pio ci --lib="."
+          --board=uno
+          --board=leonardo
+          --board=esp32dev
+          --board=nodemcuv2
+          ${{ matrix.example }}
