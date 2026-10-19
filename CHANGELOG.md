@@ -11,7 +11,8 @@ uses [Semantic Versioning](https://semver.org/).
 ### Changed
 - `logger.error/warn/info/debug()` now honor `XLOGGER_MAX_LEVEL`: above it their code is
   removed from the firmware, like the `XLOG_*` macros, and on optimized builds (AVR) their
-  text too. On ESP32 with PlatformIO's default (unoptimized) sketch build the text stays.
+  text too. On ESP32, PlatformIO builds the sketch unoptimized by default; adding `-Os` to
+  `build_flags` removes the text as well (verified in CI).
   Arguments are still evaluated, so debug and release builds behave the same.
   `here()`, `enabled()` and the legacy `print/println` honor it too.
 - Documentation recommends `logger.info()` (Serial.print-like) as the default style;

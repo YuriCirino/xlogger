@@ -94,7 +94,7 @@ Output:
 |---|---|---|
 | Output | `[I] ...` | identical |
 | Filtered at runtime by `setLevel()` | yes | yes |
-| Removed from firmware above `XLOGGER_MAX_LEVEL` | code: yes; text: yes on optimized builds (AVR), stays on ESP32 with PlatformIO defaults | code and text, always |
+| Removed from firmware above `XLOGGER_MAX_LEVEL` | code: yes; text: yes on optimized builds (AVR, or ESP32 with `-Os` in `build_flags`) | code and text, always |
 | Arguments evaluated when compiled out | **yes** | **no** |
 
 ## API
@@ -249,8 +249,9 @@ build_flags = -D XLOGGER_MAX_LEVEL=XLOG_LEVEL_DEBUG
 build_flags = -D XLOGGER_MAX_LEVEL=XLOG_LEVEL_WARN
 ```
 
-`pio run -e release` produces firmware without debug/info code. On ESP32 with PlatformIO defaults
-the text of disabled method calls stays in flash; use macros there if that matters.
+`pio run -e release` produces firmware without debug/info code. On ESP32, PlatformIO builds the
+sketch unoptimized by default, so also add `-Os` to the release `build_flags` to drop the text
+of disabled method calls: `build_flags = -Os -D XLOGGER_MAX_LEVEL=XLOG_LEVEL_WARN`.
 
 ### Change the level at runtime over Serial
 

@@ -77,7 +77,8 @@ Both print exactly the same thing. **If in doubt, use `logger.info()`.**
 
 ¹ On ESP32 with PlatformIO's default settings the sketch is compiled without optimization,
 so the text of disabled method calls stays in flash (a few bytes per call; the ESP32 has
-megabytes of flash). The macros remove it there too.
+megabytes of flash). To remove it too, add `-Os` to `build_flags` — verified in CI:
+`build_flags = -Os -D XLOGGER_MAX_LEVEL=XLOG_LEVEL_WARN`. The macros remove it either way.
 
 ```cpp
 #include <xLogger.h>

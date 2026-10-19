@@ -151,7 +151,9 @@ As duas imprimem exatamente a mesma coisa. **Na dúvida, use `logger.info()`.**
 
 ¹ No ESP32, com a configuração padrão do PlatformIO, o sketch é compilado sem otimização,
 então o texto das chamadas de método desligadas continua na flash (poucos bytes por chamada;
-o ESP32 tem megabytes de flash). As macros removem o texto lá também.
+o ESP32 tem megabytes de flash). Para removê-lo também, acrescente `-Os` nos `build_flags`
+(verificado no CI): `build_flags = -Os -D XLOGGER_MAX_LEVEL=XLOG_LEVEL_WARN`.
+As macros removem o texto de qualquer forma.
 
 ```cpp
 logger.debug("sensor=", lerSensor());        // lerSensor() sempre roda
